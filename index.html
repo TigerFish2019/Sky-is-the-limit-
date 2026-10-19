@@ -1,0 +1,1355 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hoogtepunt</title>
+<meta name="theme-color" content="#121c26">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font:16px/1.5 system-ui,Roboto,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+/* Layout: één kolom berglogboek op telefoonbreedte, vaste tabbalk onderin. Leisteen-avond met een oranje zonsopkomst als accent; hoogtelijnen op de achtergrond. */
+:root{
+  --void:#121c26;
+  --panel:#1a2632;
+  --panel-2:#22303e;
+  --line:#ff9f5a;
+  --line-dim:#3b4c5c;
+  --ink:#f1f4f6;
+  --muted:#a3b0bc;
+  --gold:#ffd27a;
+  --violet:#b9a3ff;
+  --red:#ff6f6f;
+  --ok:#62dca0;
+  --cat-beweging:#ff9f5a;
+  --cat-community:#62dca0;
+  --cat-interactie:#ff9cc0;
+  --cat-mindfulness:#c2adff;
+  --f-sys:"Barlow Condensed","Avenir Next Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Source Sans 3","Segoe UI",Roboto,system-ui,sans-serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--void);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(120% 55% at 50% -12%,rgba(255,159,90,.20),transparent 62%),repeating-radial-gradient(ellipse at 15% 115%,transparent 0 26px,rgba(255,255,255,.035) 26px 27px),repeating-radial-gradient(ellipse at 95% -10%,transparent 0 34px,rgba(255,255,255,.025) 34px 35px);background-attachment:fixed;}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--void)}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button{position:relative;overflow:hidden}
+button::after{content:"";position:absolute;inset:0;background:currentColor;opacity:0;transition:opacity .25s;pointer-events:none}
+button:active::after{opacity:.12;transition:none}
+button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.app{max-width:480px;margin:0 auto;min-height:100%;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px calc(92px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px}
+
+/* Systeemvenster */
+.win{position:relative;border-radius:16px;background:linear-gradient(180deg,rgba(34,48,62,.92),rgba(26,38,50,.92));border:1px solid var(--line-dim);box-shadow:0 0 0 1px rgba(255,159,90,.08) inset,0 0 24px rgba(255,159,90,.12);padding:14px}
+.win::before,.win::after{content:none}
+.win::before{top:-2px;left:-2px;border-right:0;border-bottom:0}
+.win::after{bottom:-2px;right:-2px;border-left:0;border-top:0}
+.sys-label{font-family:var(--f-sys);font-weight:600;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--line)}
+h1,h2,h3{font-family:var(--f-sys);margin:0;text-wrap:balance;letter-spacing:.04em}
+h2{font-size:20px}
+.muted{color:var(--muted)}
+
+/* Header */
+.hud{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}
+.rank-badge{border-radius:10px;width:54px;height:54px;display:grid;place-items:center;font-family:var(--f-sys);font-weight:700;font-size:28px;color:var(--rank,var(--line));border:2px solid var(--rank,var(--line));transform:rotate(45deg);box-shadow:0 0 16px var(--rank,var(--line)) inset,0 0 12px color-mix(in srgb,var(--rank,var(--line)) 50%,transparent)}
+.rank-badge span{transform:rotate(-45deg);text-shadow:0 0 10px var(--rank,var(--line))}
+.hud-main{min-width:0;display:flex;flex-direction:column;gap:4px}
+.hud-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.hud-name{font-family:var(--f-sys);font-weight:700;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hud-lvl{font-family:var(--f-sys);font-size:13px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.hud-lvl b{color:var(--ink);font-size:18px}
+.bar{height:8px;background:#16212c;border:1px solid var(--line-dim);overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#e0703a,var(--line));box-shadow:0 0 10px var(--line);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.hud-sub{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.streak{color:var(--gold)}
+
+/* Quests */
+.today-head{display:flex;justify-content:space-between;align-items:end;gap:10px}
+.today-head h2{font-size:22px}
+.timer{font-family:var(--f-sys);font-size:12px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.timer b{display:block;color:var(--red);font-size:16px}
+.notice{border-color:rgba(255,77,106,.5);box-shadow:0 0 22px rgba(255,77,106,.15)}
+.notice .sys-label{color:var(--red)}
+.qlist{display:flex;flex-direction:column;gap:10px}
+.q{--c:var(--line);border-radius:14px;position:relative;text-align:left;width:100%;display:flex;flex-direction:column;gap:8px;padding:12px 12px 12px 14px;background:rgba(26,38,50,.85);border:1px solid #33475a;transition:border-color .2s,box-shadow .2s,transform .15s}
+.q[data-cat="community"]{--c:var(--cat-community)}
+.q[data-cat="interactie"]{--c:var(--cat-interactie)}
+.q[data-cat="mindfulness"]{--c:var(--cat-mindfulness)}
+.q::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;background:var(--c);box-shadow:0 0 8px var(--c)}
+button.q:active{transform:scale(.985)}
+.q.sel{border-color:var(--c);box-shadow:0 0 18px color-mix(in srgb,var(--c) 30%,transparent),0 0 0 1px var(--c) inset}
+.q.hidden-q{border-color:rgba(255,207,92,.6);background:linear-gradient(135deg,rgba(255,207,92,.08),rgba(26,38,50,.9) 50%)}
+.q.done{opacity:.62}
+.q-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-family:var(--f-sys);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.q-cat{color:var(--c)}
+.q-stat{color:var(--muted)}
+.q-xp{margin-left:auto;color:var(--gold);font-size:13px;letter-spacing:.06em;font-variant-numeric:tabular-nums}
+.q-text{font-size:16px;font-weight:500;line-height:1.35}
+.q-hint{font-size:13px;color:var(--muted)}
+.q-check{position:absolute;right:10px;bottom:10px;width:22px;height:22px;border:1.5px solid var(--line-dim);display:grid;place-items:center;font-family:var(--f-sys);font-size:14px;color:var(--void)}
+.q.sel .q-check{background:var(--c);border-color:var(--c)}
+.hidden-tag{color:var(--gold)}
+.counter{display:flex;flex-direction:column;gap:8px}
+.counter-row{display:flex;align-items:center;gap:6px}
+.count-num{font-family:var(--f-sys);font-weight:700;font-size:20px;font-variant-numeric:tabular-nums;min-width:0;flex:1}
+.count-num small{font-size:13px;color:var(--muted)}
+.cbtn{min-width:44px;height:40px;padding:0 10px;border:1px solid var(--line-dim);background:var(--panel-2);font-family:var(--f-sys);font-weight:600;font-size:14px}
+.cbtn:active{background:#3a4f63}
+.cbar i{background:linear-gradient(90deg,color-mix(in srgb,var(--c) 50%,#000),var(--c));box-shadow:0 0 10px var(--c)}
+.btn{border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 18px;font-family:var(--f-sys);font-weight:700;font-size:15px;letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--line);color:var(--ink);background:linear-gradient(180deg,rgba(255,159,90,.22),rgba(255,159,90,.06));box-shadow:0 0 16px rgba(255,159,90,.25)}
+.btn:disabled{opacity:.35;box-shadow:none}
+.btn.ghost{border-color:var(--line-dim);background:transparent;box-shadow:none;font-size:13px;min-height:42px}
+.btn.gold{border-color:var(--gold);color:var(--gold);background:linear-gradient(180deg,rgba(255,207,92,.18),rgba(255,207,92,.04));box-shadow:0 0 16px rgba(255,207,92,.25)}
+.btn.danger{border-color:var(--red);color:var(--red);background:transparent;box-shadow:none}
+.btn-done{min-height:42px;font-size:13px}
+.actions{display:flex;gap:10px}
+.actions>*{flex:1}
+.choose-bar{position:sticky;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:5;display:flex;flex-direction:column;gap:8px;padding:10px;background:rgba(18,28,38,.9);backdrop-filter:blur(8px);border:1px solid var(--line-dim)}
+.choose-bar .row{display:flex;justify-content:space-between;font-family:var(--f-sys);font-size:13px;color:var(--muted);letter-spacing:.08em}
+.complete-banner{text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center}
+.complete-banner h2{color:var(--ok);text-shadow:0 0 14px rgba(77,255,184,.5)}
+
+/* Hunter */
+.avatar-wrap{position:relative;display:grid;place-items:center;padding-block:4px}
+.avatar-wrap svg{width:100%;max-width:300px;height:auto;overflow:hidden;border-radius:14px}
+.evo-step svg{overflow:hidden;border-radius:4px}
+.avatar-caption{text-align:center;display:flex;flex-direction:column;gap:2px}
+.avatar-caption h2{font-size:22px}
+.title-chip{display:inline-block;font-family:var(--f-sys);font-size:12px;letter-spacing:.16em;color:var(--gold);text-transform:uppercase}
+.stats{display:flex;flex-direction:column;gap:10px}
+.stat{display:grid;grid-template-columns:96px 1fr 38px 40px;gap:8px;align-items:center}
+.stat-name{font-family:var(--f-sys);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.stat-name small{display:block;font-family:var(--f-body);letter-spacing:0;text-transform:none;color:var(--muted);font-size:11px}
+.stat-val{font-family:var(--f-sys);font-weight:700;font-size:17px;text-align:right;font-variant-numeric:tabular-nums}
+.plus{width:40px;height:34px;border:1px solid var(--gold);color:var(--gold);font-family:var(--f-sys);font-size:18px}
+.plus:disabled{opacity:.15;border-color:var(--line-dim);color:var(--muted)}
+.free{display:flex;justify-content:space-between;align-items:center;font-family:var(--f-sys);font-size:13px;letter-spacing:.1em}
+.free b{color:var(--gold);font-size:18px}
+.unlocks{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.unlocks li{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;font-size:14px}
+.unlocks .r{font-family:var(--f-sys);font-weight:700;text-align:center;border:1px solid currentColor;padding:1px 0}
+.unlocks li.got{color:var(--ink)}
+.unlocks li.lock{color:#6c7d8d}
+.titles{display:flex;flex-wrap:wrap;gap:6px}
+.tchip{font-family:var(--f-sys);font-size:12px;letter-spacing:.08em;padding:6px 9px;border:1px solid var(--line-dim);color:#6c7d8d}
+.tchip.on{border-color:var(--gold);color:var(--gold)}
+.tchip.active{background:rgba(255,207,92,.15)}
+
+/* Logboek */
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpis-4{grid-template-columns:repeat(2,1fr)}
+.kpi{display:flex;flex-direction:column;gap:2px;padding:10px;border:1px solid #33475a;background:rgba(26,38,50,.7)}
+.kpi b{font-family:var(--f-sys);font-size:22px;font-variant-numeric:tabular-nums}
+.kpi span{font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.days{display:grid;grid-template-columns:repeat(14,1fr);gap:4px}
+.day{aspect-ratio:1;max-width:100%;border:1px solid #33475a;background:#16212c}
+.day.p1{background:rgba(255,159,90,.25)}
+.day.p2{background:rgba(255,159,90,.5)}
+.day.p3{background:var(--line);box-shadow:0 0 8px var(--line)}
+.day.today{outline:1px solid var(--gold);outline-offset:1px}
+.log{display:flex;flex-direction:column;gap:0;margin:0;padding:0;list-style:none}
+.log li{display:grid;grid-template-columns:8px 1fr auto;gap:10px;align-items:baseline;padding:8px 0;border-bottom:1px solid #2a3a4a;font-size:14px}
+.log li:last-child{border-bottom:0}
+.log .dot{width:8px;height:8px;align-self:center}
+.log .x{font-family:var(--f-sys);color:var(--gold);font-variant-numeric:tabular-nums;font-size:13px}
+.log .d{display:block;color:var(--muted);font-size:12px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-family:var(--f-sys);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+input[type=text],textarea{width:100%;font:inherit;color:var(--ink);background:#16212c;border:1px solid var(--line-dim);padding:10px 12px;border-radius:0}
+textarea{min-height:80px;font-family:ui-monospace,Menlo,monospace;font-size:12px}
+input:focus,textarea:focus{outline:none;border-color:var(--line);box-shadow:0 0 10px rgba(255,159,90,.3)}
+.stack{display:flex;flex-direction:column;gap:12px}
+.small{font-size:13px}
+.gates{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.gate{position:relative;aspect-ratio:3/4;max-width:100%;border-radius:14px;border:2px solid var(--line);overflow:hidden;background:#16212c;box-shadow:0 0 18px rgba(255,159,90,.4),inset 0 0 22px rgba(255,159,90,.5);transition:transform .15s}
+.gate-core{position:absolute;inset:-35%;background:conic-gradient(from 0deg,#2a3a4a,#ff9f5a,#ffd27a,#7cc8ff,#3b4c5c,#2a3a4a);filter:blur(7px);animation:spin 5s linear infinite;opacity:.9}
+.gate::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 58%,rgba(255,255,255,.6),transparent 38%)}
+.gate-lbl{position:absolute;inset:0;z-index:1;display:grid;place-items:center;font-family:var(--f-sys);font-weight:700;font-size:30px;color:#fff;text-shadow:0 0 12px var(--line)}
+button.gate:active{transform:scale(.95)}
+.gate.closed{border-style:dashed;border-color:var(--line-dim);box-shadow:none;opacity:.55}
+.gate.closed .gate-lbl{font-size:20px;text-shadow:none}
+.gate-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);font-family:var(--f-sys);letter-spacing:.06em}
+.gate-legend i{display:inline-block;width:10px;height:10px;margin-right:5px;border-radius:50%;vertical-align:-1px}
+.gate-q{border-color:var(--c);box-shadow:0 0 20px color-mix(in srgb,var(--c) 35%,transparent)}
+.gate-timer{font-family:var(--f-sys);font-size:13px;color:var(--red);letter-spacing:.06em}
+.gate-timer b{font-variant-numeric:tabular-nums}
+@keyframes spin{to{transform:rotate(360deg)}}
+.seg{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.seg button{min-height:40px;border:1px solid var(--line-dim);font-family:var(--f-sys);font-size:13px;letter-spacing:.06em;color:var(--muted)}
+.seg button.on{border-color:var(--line);color:var(--ink);background:rgba(255,159,90,.18);box-shadow:0 0 10px rgba(255,159,90,.25)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px}
+
+/* Tabbalk */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;padding:8px max(16px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:rgba(18,28,38,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line-dim)}
+.tabs-in{display:grid;grid-template-columns:repeat(3,1fr);width:100%;max-width:480px;gap:6px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;font-family:var(--f-sys);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.tab svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.6}
+.tab[aria-selected="true"]{color:var(--line);text-shadow:0 0 8px var(--line)}
+.tab[aria-selected="true"] svg{filter:drop-shadow(0 0 4px var(--line))}
+.dotbadge{position:relative}
+.dotbadge[data-n]::after{content:attr(data-n);position:absolute;top:-4px;right:-10px;min-width:16px;height:16px;padding:0 4px;background:var(--gold);color:var(--void);font-size:10px;line-height:16px;letter-spacing:0;border-radius:8px}
+
+/* Overlay */
+.overlay{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:24px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px));background:rgba(2,4,9,.78);backdrop-filter:blur(4px)}
+.overlay .win{width:100%;max-width:380px;text-align:center;display:flex;flex-direction:column;gap:10px;animation:pop .5s cubic-bezier(.2,1.4,.4,1)}
+.overlay .big{font-family:var(--f-sys);font-weight:700;font-size:44px;line-height:1;color:var(--line);text-shadow:0 0 18px var(--line)}
+.overlay .big.gold{color:var(--gold);text-shadow:0 0 18px var(--gold)}
+@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:none;opacity:1}}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:40;font-family:var(--f-sys);font-size:14px;letter-spacing:.06em;padding:10px 16px;border:1px solid var(--gold);color:var(--gold);background:rgba(18,28,38,.95);box-shadow:0 0 16px rgba(255,207,92,.3);max-width:calc(100% - 32px);text-align:center}
+
+/* Avatar animatie */
+@keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
+@keyframes orbit{to{transform:rotate(360deg)}}
+@keyframes twinkle{0%,100%{opacity:.15}50%{opacity:1}}
+@keyframes flicker{0%,100%{opacity:.75;transform:scaleY(1)}50%{opacity:1;transform:scaleY(1.05)}}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:.9}}
+.av-body{animation:breathe 4s ease-in-out infinite;transform-box:fill-box}
+.av-orbit{transform-origin:120px 200px;animation:orbit 14s linear infinite}
+.av-spark{animation:twinkle 2.4s ease-in-out infinite}
+.av-flame{transform-origin:120px 300px;animation:flicker 1.6s ease-in-out infinite}
+.av-flame2{animation-duration:1.1s}
+.av-bob{animation:bob 3s ease-in-out infinite}
+.av-flag{animation:flag 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:0 50%}
+@keyframes flag{0%,100%{transform:skewY(0)}50%{transform:skewY(-6deg)}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.av-flick{animation:pulse 1.2s ease-in-out infinite}
+.av-rise{animation:rise 3.4s ease-in infinite;transform-box:fill-box}
+.av-rise.slow{animation-duration:6s}
+@keyframes rise{0%{transform:translateY(0);opacity:0}15%{opacity:1}100%{transform:translateY(-70px);opacity:0}}
+.evo{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.evo-step{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;border:1px solid #33475a;background:#16212c;font-family:var(--f-sys);font-weight:700;font-size:12px;color:var(--muted)}
+.evo-step svg{width:100%;height:auto}
+.evo-step.on{border-color:var(--line);color:var(--ink);box-shadow:0 0 10px rgba(255,159,90,.3)}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{min-height:40px;padding:0 12px;border:1px solid var(--line-dim);font-family:var(--f-sys);font-size:13px;letter-spacing:.06em;color:var(--muted);display:flex;align-items:center;gap:7px}
+.opt.on{border-color:var(--line);color:var(--ink);background:rgba(255,159,90,.16);box-shadow:0 0 10px rgba(255,159,90,.25)}
+.opt i{width:12px;height:12px;border-radius:50%;box-shadow:0 0 6px currentColor}
+.swatch{width:40px;height:40px;border:2px solid #33475a;border-radius:50%}
+.swatch.on{border-color:var(--ink);box-shadow:0 0 0 2px var(--line),0 0 12px var(--line)}
+.evo-label{margin:0;text-align:center;font-size:13px}
+.av-aura{animation:pulse 3.2s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="app" id="app"></div>
+<nav class="tabs" aria-label="Navigatie">
+  <div class="tabs-in" role="tablist">
+    <button class="tab" role="tab" data-tab="quests" id="tab-quests"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg><span class="dotbadge" id="badge-q">Quests</span></button>
+    <button class="tab" role="tab" data-tab="hunter" id="tab-hunter"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3.5"/><path d="M5 21c.5-5 3.2-8 7-8s6.5 3 7 8"/></svg><span class="dotbadge" id="badge-h">Bergloper</span></button>
+    <button class="tab" role="tab" data-tab="log" id="tab-log"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Logboek</span></button>
+  </div>
+</nav>
+<div id="layer"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ===================== QUESTPOOL ===================== */
+// tier 0..3 = rang E, D, C, B en hoger. c = teller (aantallen bijhouden).
+const B="beweging",C="community",I="interactie",M="mindfulness";
+const POOL=[
+ // ---------- BEWEGING (zonder sportspullen: stoel, muur, trap, vloer) ----------
+ {id:"b01",cat:B,s:"STR",t:"Doe in totaal {n} push-ups tegen de muur",n:[20,30,50,70],c:1,h:"Handen op schouderhoogte tegen de muur, lichaam recht."},
+ {id:"b02",cat:B,s:"STR",t:"Doe in totaal {n} push-ups op je knieën",n:[8,15,25,40],c:1,h:"Leg een kussen onder je knieën."},
+ {id:"b03",cat:B,s:"STR",t:"Sta {n} keer op uit een stoel en ga weer zitten",n:[10,15,25,40],c:1,h:"Lukt het, doe het dan zonder je handen te gebruiken."},
+ {id:"b04",cat:B,s:"VIT",t:"Wandel {n} minuten in stevig tempo",n:[20,30,40,60],h:"Stevig betekent: praten lukt nog, zingen niet meer."},
+ {id:"b05",cat:B,s:"VIT",t:"Zet vandaag {n} stappen",n:[5000,7000,9000,11000],c:1,step:[500,1000]},
+ {id:"b06",cat:B,s:"AGI",t:"Sta {n} seconden op één been, per kant",n:[20,30,45,60],h:"Houd het aanrecht of een stoel binnen handbereik."},
+ {id:"b07",cat:B,s:"AGI",t:"Loop {n} passen hiel-teen, als op een koord",n:[10,20,30,40],c:1,h:"Loop langs een muur, zodat je steun hebt als dat nodig is."},
+ {id:"b08",cat:B,s:"STR",t:"Ga {n} keer op je tenen staan bij het aanrecht",n:[15,25,40,60],c:1},
+ {id:"b09",cat:B,s:"STR",t:"Doe {n} glute bridges op de vloer of op bed",n:[10,20,30,40],c:1,h:"Op je rug, voeten plat, heupen rustig omhoog en omlaag."},
+ {id:"b10",cat:B,s:"VIT",t:"Doe {n} bird dogs per kant",n:[5,8,10,15],c:1,h:"Op handen en knieën: strek tegelijk een arm en het andere been."},
+ {id:"b11",cat:B,s:"VIT",t:"Doe {n} dead bugs",n:[10,16,24,30],c:1,h:"Op je rug, onderrug tegen de vloer. Beweeg langzaam."},
+ {id:"b12",cat:B,s:"VIT",t:"Houd in totaal {n} seconden een plank vast, op je knieën mag",n:[20,40,60,90],c:1,step:[5,10]},
+ {id:"b13",cat:B,s:"AGI",t:"Stretch {n} minuten: kuiten, heupen, schouders en nek",n:[10,15,20,25]},
+ {id:"b14",cat:B,s:"AGI",t:"Doe {n} minuten yoga of mobiliteitsoefeningen",n:[10,15,20,30],h:"Er zijn genoeg gratis video's voor beginners."},
+ {id:"b15",cat:B,s:"VIT",t:"Loop {n} keer een trap op",n:[3,5,8,12],c:1},
+ {id:"b16",cat:B,s:"VIT",t:"Dans {n} minuten op muziek die je blij maakt",n:[10,15,20,30]},
+ {id:"b17",cat:B,s:"STR",t:"Zit in totaal {n} seconden tegen de muur alsof je op een stoel zit",n:[20,40,60,90],c:1,step:[5,10],h:"Zak maar half door. Dat telt ook."},
+ {id:"b18",cat:B,s:"STR",t:"Draag je boodschappen zelf naar huis, verdeeld over twee tassen"},
+ {id:"b19",cat:B,s:"VIT",t:"Wandel na elke maaltijd {n} minuten",n:[5,10,10,15]},
+ {id:"b20",cat:B,s:"AGI",t:"Doe {n} wall angels: rug tegen de muur, armen langzaam omhoog en omlaag",n:[8,12,16,20],c:1,h:"Goed voor je houding."},
+ {id:"b21",cat:B,s:"VIT",t:"Doe {n} keer een bekkenbodemoefening: 5 tellen aanspannen, 5 tellen loslaten",n:[10,15,20,30],c:1,h:"Span aan alsof je een plas ophoudt. Adem gewoon door."},
+ {id:"b22",cat:B,s:"STR",t:"Doe {n} marspassen op de plaats met je knieën hoog",n:[30,50,80,100],c:1},
+ {id:"b23",cat:B,s:"STR",t:"Til je been {n} keer zijwaarts op, per kant",n:[10,15,20,30],c:1,h:"Houd een stoelleuning vast."},
+ {id:"b24",cat:B,s:"STR",t:"Doe {n} kleine uitvalspassen per been, met een stoel als steun",n:[6,10,15,20],c:1},
+ {id:"b25",cat:B,s:"VIT",t:"Wandel {n} kilometer",n:[2,3,5,7],u:"km"},
+ {id:"b26",cat:B,s:"VIT",t:"Wandel {n} minuten in de natuur, zonder telefoon",n:[20,30,45,60]},
+ {id:"b27",cat:B,s:"AGI",t:"Doe {n} minuten langzame balansoefeningen, zoals tai chi",n:[5,10,15,20]},
+ {id:"b28",cat:B,s:"STR",t:"Ga {n} keer op de vloer zitten en sta weer op",n:[2,4,6,8],c:1,h:"Gebruik een stoel als steun. Zonder handen is de bonusronde."},
+ {id:"b29",cat:B,s:"VIT",t:"Werk {n} minuten actief in de tuin of in huis",n:[20,30,45,60]},
+ {id:"b31",cat:B,s:"AGI",t:"Rek je kuiten en hamstrings {n} keer 30 seconden per kant",n:[2,3,4,4],c:1},
+ {id:"b32",cat:B,s:"STR",t:"Maak {n} grote armcirkels, vooruit en achteruit",n:[20,40,60,80],c:1},
+ {id:"b33",cat:B,s:"STR",t:"Doe {n} bicep curls met twee gevulde waterflessen",n:[20,30,50,70],c:1,h:"Twee flessen van een liter zijn genoeg om te beginnen."},
+ {id:"b34",cat:B,s:"STR",t:"Druk twee gevulde waterflessen {n} keer boven je hoofd",n:[15,25,40,60],c:1},
+ {id:"b35",cat:B,s:"VIT",t:"Huisrondje: {n} rondes van 10 keer opstaan, 10 muur-push-ups en 20 marspassen",n:[2,3,4,5],c:1},
+ {id:"b36",cat:B,s:"VIT",t:"Wandel {n} minuten en zwaai je armen actief mee",n:[15,20,30,40]},
+ {id:"b37",cat:B,s:"VIT",t:"Neem vandaag overal de trap in plaats van de lift"},
+ {id:"b38",cat:B,s:"AGI",t:"Loop {n} keer 10 passen op je tenen",n:[3,5,8,10],c:1},
+ {id:"b40",cat:B,s:"STR",t:"Doe {n} dips op de rand van een stevige stoel",n:[5,10,15,25],c:1},
+ {id:"b41",cat:B,s:"VIT",t:"Doe {n} side planks op je knieën van 20 seconden, per kant",n:[1,2,3,4],c:1},
+ {id:"b42",cat:B,s:"AGI",t:"Doe {n} keer kat en koe op handen en knieën",n:[8,12,16,20],c:1,h:"Rug rustig bol en hol, op je ademhaling."},
+ {id:"b43",cat:B,s:"VIT",t:"Beweeg vandaag {n} keer 2 minuten tussendoor",n:[4,6,8,10],c:1},
+ {id:"b44",cat:B,s:"STR",t:"Het ritueel: {n} muur-push-ups, {n} glute bridges en {n} keer opstaan uit een stoel",n:[10,15,25,35],c:3},
+ {id:"b46",cat:B,s:"VIT",t:"Doe {n} jumping jacks zonder sprong: stap opzij en zwaai je armen omhoog",n:[20,40,60,80],c:1},
+ {id:"b48",cat:B,s:"VIT",t:"Wandel naar een plek in je buurt waar je nog nooit bent geweest"},
+ {id:"b49",cat:B,s:"STR",t:"Houd {n} seconden je armen gestrekt opzij, in totaal",n:[30,60,90,120],c:1,step:[5,10]},
+ {id:"b50",cat:B,s:"AGI",t:"Draai {n} keer rustig je heupen, schouders en enkels rond",n:[10,15,20,30],c:1},
+
+ // ---------- MINDFULNESS ----------
+ {id:"m01",cat:M,s:"RUS",t:"Adem {n} minuten rustig: 4 tellen in, 6 tellen uit",n:[3,5,8,10]},
+ {id:"m02",cat:M,s:"RUS",t:"Zit {n} minuten in stilte en volg je ademhaling",n:[5,8,12,15],h:"Dwalen je gedachten af? Breng je aandacht rustig terug. Dat is de oefening."},
+ {id:"m03",cat:M,s:"RUS",t:"Schrijf drie dingen op waar je vandaag dankbaar voor bent"},
+ {id:"m04",cat:M,s:"RUS",t:"Doe een bodyscan van {n} minuten: aandacht van je tenen tot je kruin",n:[5,10,12,15]},
+ {id:"m05",cat:M,s:"RUS",t:"Wandel {n} minuten bewust: let op wat je hoort, ruikt en ziet",n:[10,15,20,30]},
+ {id:"m06",cat:M,s:"RUS",t:"Drink je koffie of thee zonder telefoon en proef elke slok"},
+ {id:"m07",cat:M,s:"RUS",t:"Eet één maaltijd langzaam en zonder scherm"},
+ {id:"m08",cat:M,s:"RUS",t:"Leg je telefoon {n} uur weg",n:[1,2,3,4]},
+ {id:"m09",cat:M,s:"RUS",t:"Schrijf {n} minuten in een dagboek zonder te stoppen",n:[5,10,10,15]},
+ {id:"m10",cat:M,s:"RUS",t:"Zit {n} minuten buiten en kijk alleen maar om je heen",n:[5,10,15,20]},
+ {id:"m11",cat:M,s:"RUS",t:"Doe de 5-4-3-2-1-oefening: 5 dingen zien, 4 voelen, 3 horen, 2 ruiken, 1 proeven"},
+ {id:"m12",cat:M,s:"RUS",t:"Luister één muziekstuk van begin tot eind, met je ogen dicht"},
+ {id:"m13",cat:M,s:"RUS",t:"Schrijf op wat je vandaag goed deed, hoe klein ook"},
+ {id:"m14",cat:M,s:"RUS",t:"Ga {n} minuten eerder naar bed, zonder scherm",n:[15,20,30,30]},
+ {id:"m15",cat:M,s:"RUS",t:"Doe {n} minuten spierontspanning: span elke spiergroep even aan en laat los",n:[5,8,10,15]},
+ {id:"m16",cat:M,s:"RUS",t:"Kijk {n} minuten naar de lucht of de wolken",n:[3,5,10,10]},
+ {id:"m17",cat:M,s:"RUS",t:"Ruim één la of plank op en geniet van het resultaat"},
+ {id:"m18",cat:M,s:"RUS",t:"Maak een tekening of foto van iets moois in je buurt"},
+ {id:"m19",cat:M,s:"RUS",t:"Neem vandaag bij elke deur die je opent één bewuste ademhaling"},
+ {id:"m20",cat:M,s:"RUS",t:"Zeg vandaag één keer vriendelijk nee tegen iets wat je eigenlijk niet wilt"},
+ {id:"m21",cat:M,s:"RUS",t:"Schrijf een korte brief aan jezelf van tien jaar geleden"},
+ {id:"m22",cat:M,s:"RUS",t:"Besteed {n} minuten aan iets rustigs met je handen: tekenen, puzzelen, tuinieren of klussen",n:[15,20,30,45]},
+ {id:"m23",cat:M,s:"RUS",t:"Plan vandaag {n} minuten alleen voor jezelf en houd je eraan",n:[15,20,30,45]},
+ {id:"m24",cat:M,s:"RUS",t:"Lees {n} minuten in een boek, zonder onderbreking",n:[15,20,30,45]},
+ {id:"m25",cat:M,s:"RUS",t:"Doe voor het slapen {n} keer de 4-7-8-ademhaling: 4 tellen in, 7 vasthouden, 8 uit",n:[4,6,8,10],c:1},
+ {id:"m26",cat:M,s:"RUS",t:"Sta vandaag {n} keer even stil bij hoe je je voelt, en geef het gevoel een naam",n:[3,5,6,8],c:1},
+ {id:"m27",cat:M,s:"RUS",t:"Laat vandaag elk uur even bewust je schouders zakken"},
+ {id:"m28",cat:M,s:"RUS",t:"Maak van je douche of bad een bewust moment: let op de warmte en de geur"},
+ {id:"m29",cat:M,s:"RUS",t:"Zoek een stille plek, zoals een bos, kerk of museum, en zit daar {n} minuten",n:[10,15,20,30]},
+ {id:"m30",cat:M,s:"RUS",t:"Schrijf één zorg op, en daarna één kleine stap die je eraan kunt doen"},
+ // ---------- COMMUNITY ----------
+ {id:"c01",cat:C,s:"VER",t:"Maai het gras of doe een tuinklus voor een buur",h:"Vraag het eerst even en spreek een moment af."},
+ {id:"c02",cat:C,s:"VER",t:"Raap {n} stuks zwerfafval op in je straat",n:[10,20,30,50],c:1},
+ {id:"c03",cat:C,s:"VER",t:"Bied een oudere buur aan om boodschappen voor hem of haar te doen"},
+ {id:"c04",cat:C,s:"VER",t:"Breng iets lekkers naar een buur die je nauwelijks kent"},
+ {id:"c05",cat:C,s:"VER",t:"Doneer {n} spullen die je niet meer gebruikt aan de kringloop",n:[3,5,8,10],c:1},
+ {id:"c06",cat:C,s:"VER",t:"Help iemand op straat: tas tillen, de weg wijzen, fiets omhoog zetten"},
+ {id:"c07",cat:C,s:"VER",t:"Schrijf een bedankkaartje aan een buur en stop het in de bus"},
+ {id:"c08",cat:C,s:"VER",t:"Zoek een vrijwilligersinitiatief in je wijk en meld je aan voor één activiteit"},
+ {id:"c09",cat:C,s:"VER",t:"Veeg de stoep voor je huis én bij {n} buren",n:[2,2,3,4],c:1},
+ {id:"c10",cat:C,s:"VER",t:"Geef iemand die buiten werkt iets te drinken: postbode, bezorger, stratenmaker"},
+ {id:"c11",cat:C,s:"VER",t:"Koop vandaag iets bij een lokale ondernemer in plaats van online"},
+ {id:"c12",cat:C,s:"VER",t:"Bied iets aan om uit te lenen in de buurtapp of een weggeefgroep"},
+ {id:"c13",cat:C,s:"VER",t:"Zet de containers van een buur buiten of weer binnen"},
+ {id:"c14",cat:C,s:"VER",t:"Houd een mini-buurtschoonmaak van {n} minuten",n:[20,30,45,60]},
+ {id:"c15",cat:C,s:"VER",t:"Kook een portie extra en deel die met een buur of collega"},
+ {id:"c16",cat:C,s:"VER",t:"Breng {n} houdbare producten naar de voedselbank of inzamelpunt",n:[3,5,8,12],c:1},
+ {id:"c17",cat:C,s:"VER",t:"Plant iets in een geveltuin, boomspiegel of gedeelde bak"},
+ {id:"c18",cat:C,s:"VER",t:"Bel een ouder familielid of bekende minstens {n} minuten",n:[10,15,20,30]},
+ {id:"c19",cat:C,s:"VER",t:"Bied aan de hond van een buur uit te laten"},
+ {id:"c20",cat:C,s:"VER",t:"Help een collega met een taak die niet van jou is"},
+ {id:"c21",cat:C,s:"VER",t:"Breng {n} winkelwagentjes terug die anderen lieten staan",n:[2,2,3,5],c:1},
+ {id:"c22",cat:C,s:"VER",t:"Hang een briefje met een positieve boodschap in je portiek, lift of kantine"},
+ {id:"c23",cat:C,s:"VER",t:"Repareer iets kapots voor een ander: fiets, lamp, kastje"},
+ {id:"c24",cat:C,s:"VER",t:"Doe boodschappen voor iemand die ziek is of een drukke week heeft"},
+ {id:"c25",cat:C,s:"VER",t:"Leer iemand {n} minuten iets wat jij goed kunt",n:[10,15,20,30]},
+ {id:"c26",cat:C,s:"VER",t:"Ga naar een lokale activiteit: markt, wijkcentrum of open training"},
+ {id:"c27",cat:C,s:"VER",t:"Ruim een rommelige openbare plek op: bankje, bushokje, speelplek"},
+ {id:"c28",cat:C,s:"VER",t:"Schrijf een eerlijke positieve review voor {n} lokale zaken",n:[2,2,3,3],c:1},
+ {id:"c29",cat:C,s:"VER",t:"Bied in het OV je plek aan iemand die hem harder nodig heeft"},
+ {id:"c30",cat:C,s:"VER",t:"Help iemand in je omgeving met tillen, sjouwen of verhuizen"},
+ {id:"c31",cat:C,s:"VER",t:"Neem een zak mee op je wandeling en vul hem met zwerfafval"},
+ {id:"c32",cat:C,s:"VER",t:"Train samen met een buur, vriend of collega"},
+ {id:"c33",cat:C,s:"VER",t:"Zet {n} spullen buiten met een briefje 'gratis mee te nemen'",n:[2,3,5,8],c:1},
+ {id:"c34",cat:C,s:"VER",t:"Breng een maaltijd of soep naar iemand met een zware week"},
+ {id:"c35",cat:C,s:"VER",t:"Doe {n} minuten vrijwilligerswerk",n:[30,45,60,90]},
+ {id:"c36",cat:C,s:"VER",t:"Stuur een bedankje naar de leidinggevende van iemand die je goed hielp"},
+ {id:"c37",cat:C,s:"VER",t:"Help een buurtmoestuin of hang voer op voor de vogels"},
+ {id:"c38",cat:C,s:"VER",t:"Help een buur met technologie: telefoon, app of wifi"},
+ {id:"c39",cat:C,s:"VER",t:"Stel je voor aan een buur van wie je de naam nog niet weet"},
+ {id:"c40",cat:C,s:"VER",t:"Draag een tas, koffer of kinderwagen de trap op voor iemand"},
+ {id:"c41",cat:C,s:"VER",t:"Lever statiegeld in en doneer het bonnetje aan het goede doel"},
+ {id:"c42",cat:C,s:"VER",t:"Veeg bladeren of sneeuw weg voor een buur"},
+ {id:"c43",cat:C,s:"VER",t:"Vraag een buur of je iets kunt meenemen als je naar de winkel gaat"},
+ {id:"c44",cat:C,s:"VER",t:"Zoek een maatjesproject in je gemeente en neem contact op"},
+ {id:"c45",cat:C,s:"VER",t:"Breng een boek naar een minibieb of ruilkast"},
+ {id:"c46",cat:C,s:"VER",t:"Bied hulp aan bij een sportclub of vereniging in je buurt"},
+ {id:"c47",cat:C,s:"VER",t:"Nodig {n} buren uit voor koffie of een drankje",n:[2,2,3,4],c:1},
+
+ // ---------- INTERACTIE ----------
+ {id:"i01",cat:I,s:"CHA",t:"Complimenteer {n} willekeurige mensen die je tegenkomt",n:[3,5,8,10],c:1,h:"Kies iets wat ze zelf kozen: hun jas, hun energie, hun hond."},
+ {id:"i02",cat:I,s:"CHA",t:"Voer {n} keer een gesprek van minstens 2 minuten met een onbekende",n:[1,2,3,4],c:1},
+ {id:"i03",cat:I,s:"CHA",t:"Bel een vriend die je al maanden niet hebt gesproken"},
+ {id:"i04",cat:I,s:"CHA",t:"Vraag {n} mensen naar hun naam en gebruik hem in het gesprek",n:[2,3,5,8],c:1},
+ {id:"i05",cat:I,s:"CHA",t:"Bedank {n} mensen bij naam: kassa, balie, bezorging",n:[3,5,8,10],c:1},
+ {id:"i06",cat:I,s:"CHA",t:"Stuur {n} mensen een bericht over wat je in hen waardeert",n:[2,2,3,5],c:1},
+ {id:"i07",cat:I,s:"CHA",t:"Drink koffie of lunch met iemand van een andere afdeling"},
+ {id:"i08",cat:I,s:"CHA",t:"Groet {n} mensen met oogcontact en een glimlach",n:[5,10,15,20],c:1},
+ {id:"i09",cat:I,s:"CHA",t:"Vraag iemand om advies over iets waar hij of zij goed in is"},
+ {id:"i10",cat:I,s:"CHA",t:"Stel {n} keer een open vervolgvraag en luister zonder te onderbreken",n:[3,5,8,10],c:1},
+ {id:"i11",cat:I,s:"CHA",t:"Eet een maaltijd met iemand, allebei zonder telefoon op tafel"},
+ {id:"i12",cat:I,s:"CHA",t:"Vertel iemand die je vertrouwt eerlijk waar je nu mee bezig bent"},
+ {id:"i13",cat:I,s:"CHA",t:"Nodig iemand uit om samen te wandelen"},
+ {id:"i14",cat:I,s:"CHA",t:"Geef een collega concrete, positieve feedback"},
+ {id:"i15",cat:I,s:"CHA",t:"Schrijf een handgeschreven brief aan iemand die belangrijk voor je is"},
+ {id:"i16",cat:I,s:"CHA",t:"Glimlach naar {n} voorbijgangers",n:[10,20,30,50],c:1,step:[1,5]},
+ {id:"i17",cat:I,s:"CHA",t:"Vraag een kassamedewerker of barista hoe zijn dag écht gaat"},
+ {id:"i18",cat:I,s:"CHA",t:"Vraag een onbekende naar zijn vak of hobby en leer er iets van"},
+ {id:"i19",cat:I,s:"CHA",t:"Plan een concrete afspraak met een vriend voor deze week"},
+ {id:"i20",cat:I,s:"CHA",t:"Maak {n} keer iemand aan het lachen",n:[1,3,5,8],c:1},
+ {id:"i21",cat:I,s:"CHA",t:"Stuur een bericht naar iemand met wie het contact is verwaterd"},
+ {id:"i22",cat:I,s:"CHA",t:"Maak een praatje met {n} buren die je normaal alleen groet",n:[2,2,3,4],c:1},
+ {id:"i23",cat:I,s:"CHA",t:"Zeg ja tegen een sociale uitnodiging, of verstuur er zelf één"},
+ {id:"i24",cat:I,s:"CHA",t:"Vraag een ouder familielid naar een herinnering uit zijn of haar jeugd"},
+ {id:"i25",cat:I,s:"CHA",t:"Breng twee mensen met elkaar in contact die elkaar zouden moeten kennen"},
+ {id:"i26",cat:I,s:"CHA",t:"Breng een uur schermvrij door met iemand"},
+ {id:"i27",cat:I,s:"CHA",t:"Bied je excuses aan voor iets kleins dat nog dwarszit"},
+ {id:"i28",cat:I,s:"CHA",t:"Geef {n} keer een compliment over iemands karakter",n:[1,2,3,5],c:1},
+ {id:"i29",cat:I,s:"CHA",t:"Vraag aan {n} mensen 'hoe gaat het écht met je?' en luister",n:[2,2,3,4],c:1},
+ {id:"i30",cat:I,s:"CHA",t:"Doe mee met een groepsles of groepstraining en praat met een deelnemer"},
+ {id:"i31",cat:I,s:"CHA",t:"Videobel {n} minuten met familie of een vriend",n:[10,15,20,30]},
+ {id:"i32",cat:I,s:"CHA",t:"Schrijf drie dingen op waar je dankbaar voor bent en deel er één"},
+ {id:"i33",cat:I,s:"CHA",t:"Vraag een onbekende om een tip: restaurant, boek of route"},
+ {id:"i34",cat:I,s:"CHA",t:"Houd {n} keer de deur open voor iemand en maak oogcontact",n:[3,5,8,10],c:1},
+ {id:"i35",cat:I,s:"CHA",t:"Stel je voor aan iemand nieuw op je werk, club of sportschool"},
+ {id:"i36",cat:I,s:"CHA",t:"Vertel iemand waarom je trots op hem of haar bent"},
+ {id:"i37",cat:I,s:"CHA",t:"Geef een straatmuzikant of maker een persoonlijk compliment"},
+ {id:"i38",cat:I,s:"CHA",t:"Sluit aan bij een groepsgesprek en draag iets bij"},
+ {id:"i39",cat:I,s:"CHA",t:"Stuur {n} vrienden een spraakbericht in plaats van tekst",n:[2,2,3,4],c:1},
+ {id:"i40",cat:I,s:"CHA",t:"Plan een spelletjesavond of etentje met vrienden"},
+ {id:"i41",cat:I,s:"CHA",t:"Vraag {n} mensen: 'waar werd jij vandaag blij van?'",n:[2,2,3,5],c:1},
+ {id:"i42",cat:I,s:"CHA",t:"Feliciteer iemand persoonlijk, met een eigen bericht of in het echt"},
+ {id:"i43",cat:I,s:"CHA",t:"Luister 10 minuten naar iemand zonder advies te geven"},
+ {id:"i44",cat:I,s:"CHA",t:"Bedank je partner, huisgenoot of familie voor iets alledaags"},
+ {id:"i45",cat:I,s:"CHA",t:"Leer {n} woorden in de taal van een buur of collega en gebruik ze",n:[2,3,5,5],c:1},
+ {id:"i46",cat:I,s:"CHA",t:"Onthoud iets wat iemand gisteren vertelde en vraag ernaar"},
+ {id:"i47",cat:I,s:"CHA",t:"Zeg {n} keer hardop 'dankjewel, dat waardeer ik' en meen het",n:[2,3,5,8],c:1},
+ {id:"i51",cat:I,s:"CHA",t:"Breng een uur door in een café of bibliotheek en maak een praatje met iemand"},
+ {id:"i53",cat:I,s:"CHA",t:"Bel of bezoek iemand van wie je weet dat die vaak alleen is"},
+ {id:"i54",cat:I,s:"CHA",t:"Nodig iemand uit om samen te wandelen en daarna koffie te drinken"},
+ {id:"i55",cat:I,s:"CHA",t:"Deel een vaardigheid of herinnering met iemand van een andere generatie"},
+ {id:"i56",cat:I,s:"CHA",t:"Ga één keer kijken bij een koor, leesclub of andere groep"},
+ {id:"c50",cat:C,s:"VER",t:"Doe mee met een wandelgroep of beweegactiviteit in je buurt"},
+ {id:"c51",cat:C,s:"VER",t:"Vraag bij het buurthuis of de bibliotheek welke activiteiten er deze maand zijn"},
+ {id:"c48",cat:C,s:"VER",t:"Haal je lunch bij een zaak in je eigen wijk en maak kennis met de eigenaar"},
+ {id:"c49",cat:C,s:"VER",t:"Maak een rondje door de wijk in je lunchpauze en groet iedereen die je tegenkomt"},
+ // Kantoordag (verschijnen alleen op je kantoordag)
+ {id:"o01",cat:I,s:"CHA",o:1,t:"Lunch op kantoor met iemand met wie je normaal alleen online werkt"},
+ {id:"o02",cat:I,s:"CHA",o:1,t:"Loop op kantoor bij {n} collega's langs voor een praatje",n:[2,3,4,5],c:1},
+ {id:"o03",cat:I,s:"CHA",o:1,t:"Voer op kantoor een wandeloverleg met een collega"},
+ {id:"o04",cat:I,s:"CHA",o:1,t:"Vraag op kantoor een collega waar hij of zij nu tegenaan loopt en denk mee"},
+ {id:"o05",cat:C,s:"VER",o:1,t:"Neem iets lekkers mee naar kantoor voor je collega's"},
+ {id:"o06",cat:C,s:"VER",o:1,t:"Help op kantoor iemand persoonlijk met iets waar hij of zij op vastloopt"},
+ {id:"o07",cat:I,s:"CHA",o:1,t:"Stel je op kantoor voor aan iemand die je nog niet kent"}
+];
+// Tijdsdruk voor bewegingsquests met teller (Solo Leveling-stijl)
+const MODS=["vóór 12:00","vóór de lunch","vóór 10:00","in maximaal 4 sets","binnen 20 minuten","verspreid over de dag","tijdens een tv-programma","na het avondeten","vóór het ontbijt"];
+const PENALTY=[
+ "3 rondes: 15 keer opstaan uit een stoel, 15 muur-push-ups, 20 glute bridges en 30 seconden plank op je knieën",
+ "Wandel 6 kilometer",
+ "Wandel 30 minuten in stevig tempo en stretch daarna 10 minuten",
+ "Loop 10 keer een trap op",
+ "Dans 30 minuten",
+ "4 rondes: 15 keer op je tenen, 10 bird dogs per kant en 30 marspassen"
+]
+const BASEXP={beweging:60,community:80,interactie:70,mindfulness:60};
+const CATLBL={beweging:"Beweging",community:"Community",interactie:"Interactie",mindfulness:"Mindfulness"};
+const STATS=[
+ {k:"STR",n:"Kracht",d:"Bredere schouders, zwaardere armen"},
+ {k:"VIT",n:"Uithouding",d:"Sterkere aura"},
+ {k:"AGI",n:"Balans",d:"Windlijnen, je bent in beweging"},
+ {k:"CHA",n:"Charisma",d:"Gouden vonken om je heen"},
+ {k:"RUS",n:"Rust",d:"Een zachte gloed en zwevende lichtjes"},
+ {k:"VER",n:"Verbinding",d:"Lichtjes van mensen die met je meelopen"}
+];
+const RANKS=[
+ {r:"E",min:1, col:"#9fb3c4",name:"E · Dalwandelaar",gear:"Sportschoenen, trainingsjack en een hanger met een bergje"},
+ {r:"D",min:10,col:"#62dca0",name:"D · Heuvelloper",gear:"Zweetband, polsbandjes en een klein rugzakje"},
+ {r:"C",min:20,col:"#7cc8ff",name:"C · Bergwandelaar",gear:"Wandeljas, heupband en uitzicht boven de boomgrens"},
+ {r:"B",min:35,col:"#c2adff",name:"B · Hooggebergte",gear:"Grote rugzak, sterke houding en sneeuw op de toppen"},
+ {r:"A",min:50,col:"#ffd27a",name:"A · Bergbeklimmer",gear:"In volle vaart met wandelstok, jas in de wind en oorbellen in je kleur"},
+ {r:"S",min:70,col:"#ff9f5a",name:"S · Topper",gear:"Op de top: vlag in de hand en de zon komt op achter je"}
+];
+const TITLES=[
+ {id:"first",n:"Eerste Stap",d:"Eerste quest voltooid",ok:s=>s.totalDone>=1},
+ {id:"day1",n:"Dagtocht",d:"Eén keer alle 3 quests van een dag",ok:s=>s.perfectDays>=1},
+ {id:"st3",n:"Volhouder",d:"3 dagen streak",ok:s=>s.best>=3},
+ {id:"st7",n:"IJzeren Wil",d:"7 dagen streak",ok:s=>s.best>=7},
+ {id:"st30",n:"Onbreekbaar",d:"30 dagen streak",ok:s=>s.best>=30},
+ {id:"b25",n:"Sterke Benen",d:"25 bewegingsquests",ok:s=>s.counts.beweging>=25},
+ {id:"c10",n:"Buurtheld",d:"10 communityquests",ok:s=>s.counts.community>=10},
+ {id:"i10",n:"Verbinder",d:"10 interactiequests",ok:s=>s.counts.interactie>=10},
+ {id:"hid",n:"Verborgen Pad",d:"Een verborgen quest voltooid",ok:s=>s.hiddenDone>=1},
+ {id:"c40",n:"Hart van de Wijk",d:"40 communityquests",ok:s=>s.counts.community>=40},
+ {id:"i40",n:"Magneet",d:"40 interactiequests",ok:s=>s.counts.interactie>=40},
+ {id:"m15",n:"Innerlijke Rust",d:"15 mindfulnessquests",ok:s=>(s.counts.mindfulness||0)>=15},
+ {id:"q100",n:"Honderd Quests",d:"100 quests voltooid",ok:s=>s.totalDone>=100},
+ {id:"g1",n:"Routezoeker",d:"Eerste extra route gelopen",ok:s=>(s.gatesCleared||0)>=1},
+ {id:"red",n:"Zwarte Piste",d:"Een zwarte route gelopen",ok:s=>(s.redCleared||0)>=1},
+ {id:"cb5",n:"Op Dreef",d:"Reeks van 5 routes op één dag",ok:s=>(s.bestCombo||0)>=5},
+ {id:"g25",n:"Bergkenner",d:"25 extra routes gelopen",ok:s=>(s.gatesCleared||0)>=25}
+];
+
+/* ===================== HULPFUNCTIES ===================== */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pad=n=>String(n).padStart(2,"0");
+const dkey=(d=new Date())=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const addDays=(k,n)=>{const [y,m,d]=k.split("-").map(Number);return dkey(new Date(y,m-1,d+n));};
+function hash(str){let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=h<<13|h>>>19;}return h>>>0;}
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const needXp=l=>80+20*l;
+const rankIdx=l=>{let i=0;RANKS.forEach((r,j)=>{if(l>=r.min)i=j;});return i;};
+const tierOf=l=>Math.min(3,rankIdx(l));
+const fmt=n=>n.toLocaleString("nl-NL");
+
+/* ===================== STAAT ===================== */
+const KEY="hunter50-v1";
+function fresh(){return{v:1,name:"Bergloper",level:1,xp:0,totalXp:0,stats:{STR:10,VIT:10,AGI:10,CHA:10,RUS:10,VER:10},free:0,streak:0,best:0,lastPerfect:null,perfectDays:0,counts:{beweging:0,community:0,interactie:0,mindfulness:0},totalDone:0,hiddenDone:0,titles:[],activeTitle:null,history:[],recent:[],today:null,penalty:null,seen:{h:0},settings:{penalty:false,office:null},poolV:2,updatedAt:0};}
+function migrate(o){o.stats=Object.assign({STR:10,VIT:10,AGI:10,CHA:10,RUS:10,VER:10},o.stats||{});o.counts=Object.assign({beweging:0,community:0,interactie:0,mindfulness:0},o.counts||{});o.settings=Object.assign({penalty:false,office:null},o.settings||{});return o;}
+let S=migrate(load()||fresh());
+let tab="quests", cloud=null, saveT=null;
+function load(){try{const r=localStorage.getItem(KEY);return r?JSON.parse(r):null;}catch(e){return null;}}
+function save(){S.updatedAt=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
+  clearTimeout(saveT);saveT=setTimeout(()=>{if(cloud){cloud.set({state:JSON.stringify(S),updatedAt:S.updatedAt}).catch(()=>{});}},800);}
+
+/* ===================== DAGLOGICA ===================== */
+function genOffer(date,salt){
+  const r=rng(hash(date+"|"+S.name+"|"+salt));
+  const recent=new Set();S.history.slice(-12).forEach(h=>h.ids.forEach(i=>recent.add(i)));
+  const tier=tierOf(S.level);
+  const [yy,mm,dd]=date.split("-").map(Number);const office=S.settings.office!=null&&new Date(yy,mm-1,dd).getDay()===S.settings.office;
+  const okDay=q=>!q.o||office;
+  const pick=(cat,k,only)=>{const base=POOL.filter(q=>q.cat===cat&&okDay(q)&&(!only||q.o));let c=base.filter(q=>!recent.has(q.id));if(c.length<k)c=base.slice();
+    const out=[];while(out.length<k&&c.length){out.push(c.splice(Math.floor(r()*c.length),1)[0]);}return out;};
+  // Kantoordag: één interactiequest is gegarandeerd een kantoorquest
+  const offI=office?pick(I,1,true):[];offI.forEach(q=>recent.add(q.id));
+  const ci=r()<.5;const tpls=[...pick(B,2),...pick(M,2),...pick(C,ci?2:1),...offI,...pick(I,Math.max(0,(ci?1:2)-offI.length))];
+  // schudden
+  for(let i=tpls.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[tpls[i],tpls[j]]=[tpls[j],tpls[i]];}
+  const hiddenAt=r()<0.14?Math.floor(r()*7):-1;
+  return tpls.map((t,i)=>{
+    let n=t.n?t.n[tier]:null, text=t.t.replace(/\{n\}/g,n!=null?fmt(n):"");
+    let mod=null;
+    if(t.cat===B&&t.c&&r()<0.4){mod=MODS[Math.floor(r()*MODS.length)];text+=" "+mod;}
+    let xp=BASEXP[t.cat]*(1+0.15*tier)*(mod?1.15:1)*(t.n?1:1.05);
+    const hidden=i===hiddenAt; if(hidden)xp*=2;
+    const target=t.c?n*t.c:null;
+    return{id:t.id,cat:t.cat,s:t.s,text,h:t.h||null,xp:Math.round(xp/5)*5,target,step:t.step||null,hidden,u:t.u||null};
+  });
+}
+function ensureDay(){
+  const k=dkey();
+  if(S.today&&S.today.date===k)return false;
+  if(S.today){ // vorige dag afsluiten
+    const t=S.today;const done=t.chosen.filter(i=>t.done[i]).length;
+    if(t.chosen.length)S.history.push({d:t.date,ids:t.chosen.map(i=>t.offer[i].id),done});
+    S.history=S.history.slice(-60);
+  }
+  const yest=addDays(k,-1);
+  const missed=S.lastPerfect!==yest&&S.lastPerfect!==k&&(S.streak>0||(S.today&&!S.today.perfect));
+  if(missed){
+    if(S.settings.penalty){
+      const loss=Math.floor(S.xp*0.25);S.xp-=loss;
+      const r=rng(hash(k+"straf"));
+      S.penalty={mode:"hard",lost:S.streak,loss,date:k,quest:PENALTY[Math.floor(r()*PENALTY.length)],done:false,confirm:false};
+      S.streak=0;
+    }else if(S.streak>0){
+      S.penalty={mode:"soft",lost:S.streak,date:k,done:true};
+    }
+  }
+  S.today={date:k,offer:genOffer(k,0),sel:[],chosen:[],prog:{},done:{},rerolled:false,perfect:false,confirm:null};
+  save();return true;
+}
+
+/* ===================== XP & LEVELS ===================== */
+let queue=[];
+function gainXp(x){
+  S.xp+=x;S.totalXp+=x;
+  const before=rankIdx(S.level);
+  while(S.xp>=needXp(S.level)){S.xp-=needXp(S.level);S.level++;S.free+=3;queue.push({type:"level",level:S.level});}
+  const after=rankIdx(S.level);if(after>before)queue.push({type:"rank",r:after});
+}
+function checkTitles(){TITLES.forEach(t=>{if(!S.titles.includes(t.id)&&t.ok(S)){S.titles.push(t.id);queue.push({type:"title",t});if(!S.activeTitle)S.activeTitle=t.id;}});}
+function buzz(p){try{if(navigator.vibrate)navigator.vibrate(p);}catch(e){}}
+function streakMult(){return 1+Math.min(S.streak,10)*0.05;}
+function complete(i){
+  const t=S.today;if(t.done[i])return;
+  const q=t.offer[i];t.done[i]=true;buzz(40);
+  const x=Math.round(q.xp*streakMult());
+  S.stats[q.s]+=q.hidden?2:1;
+  S.counts[q.cat]++;S.totalDone++;if(q.hidden)S.hiddenDone++;
+  S.recent.unshift({d:t.date,text:q.text,xp:x,cat:q.cat});S.recent=S.recent.slice(0,40);
+  toast("+"+x+" XP · +"+(q.hidden?2:1)+" "+STATS.find(s=>s.k===q.s).n);
+  gainXp(x);
+  checkPerfect();
+  checkTitles();save();render();flush();
+}
+function penaltyOpen(){return S.penalty&&S.penalty.mode==="hard"&&!S.penalty.done&&S.penalty.date===S.today.date;}
+function checkPerfect(){
+  const t=S.today;
+  if(t.perfect||t.chosen.length!==3||!t.chosen.every(c=>t.done[c]))return;
+  if(penaltyOpen()){toast("Rond eerst de strafquest af voor je dagbonus");return;}
+  t.perfect=true;
+  const cont=S.lastPerfect===addDays(t.date,-1)||(!S.settings.penalty&&S.streak>0);
+  S.streak=cont?S.streak+1:1;
+  S.lastPerfect=t.date;S.best=Math.max(S.best,S.streak);S.perfectDays++;
+  const bonus=50+10*Math.min(S.streak,10);
+  gateState().keys+=1;
+  queue.push({type:"daily",bonus});gainXp(bonus);
+}
+
+/* ===================== POORTEN ===================== */
+// Na de 3 dagquests krijg je een poortsleutel. Elke gezuiverde poort geeft een nieuwe sleutel: je kunt eindeloos door.
+const GATES={
+ blauw:{n:"Groene route",c:"#62dca0",m:1,d:"Een rustige extra route met een extra quest."},
+ paars:{n:"Blauwe route",c:"#7cc8ff",m:1.6,d:"Pittiger. Meer XP."},
+ rood:{n:"Zwarte route",c:"#f1f4f6",m:2.5,d:"Zwaar en snel: je hebt 2 uur, anders trekt de mist dicht en verlies je je reeks."}
+};
+function gateState(){const t=S.today;if(!t.gate)t.gate={keys:0,combo:0,best:0,cleared:0,active:null,seed:0,used:[]};return t.gate;}
+function gateMult(){return 1+0.1*Math.min(gateState().combo,10);}
+function isOfficeDay(date){const [y,m,d]=date.split("-").map(Number);return S.settings.office!=null&&new Date(y,m-1,d).getDay()===S.settings.office;}
+function openGate(slot){
+  const t=S.today,G=gateState();if(!G.keys||G.active)return;
+  G.seed++;const r=rng(hash(t.date+"|poort|"+G.seed+"|"+slot+"|"+S.name));
+  const red=Math.min(.08+G.combo*.04,.3),pur=Math.min(.25+G.combo*.05,.45),x=r();
+  const rar=x<red?"rood":x<red+pur?"paars":"blauw";
+  const cat=rar==="rood"&&r()<.6?B:[B,C,I,M][Math.floor(r()*4)];
+  const used=new Set([...t.offer.map(q=>q.id),...G.used]),office=isOfficeDay(t.date);
+  let c=POOL.filter(q=>q.cat===cat&&!used.has(q.id)&&(!q.o||office));if(!c.length)c=POOL.filter(q=>q.cat===cat&&!q.o);
+  const tp=c[Math.floor(r()*c.length)],base=tierOf(S.level),tier=Math.min(3,base+(rar==="blauw"?0:1));
+  let n=tp.n?tp.n[tier]:null;if(rar==="rood"&&n&&base>=3)n=Math.round(n*1.25);
+  const text=tp.t.replace(/\{n\}/g,n!=null?fmt(n):"");
+  const xp=Math.round(BASEXP[tp.cat]*(1+0.15*base)*GATES[rar].m/5)*5;
+  G.used.push(tp.id);G.keys--;buzz([30,60,30]);
+  G.active={id:tp.id,cat:tp.cat,s:tp.s,text,h:tp.h||null,xp,target:tp.c?n*tp.c:null,step:tp.step||null,rar,prog:0,confirm:false,deadline:rar==="rood"?Date.now()+2*3600e3:null};
+  queue.push({type:"gate",rar});save();render();flush();
+}
+function clearGate(){
+  const G=gateState(),q=G.active;if(!q)return;buzz([40,40,80]);
+  const x=Math.round(q.xp*gateMult()*streakMult()),pts=q.rar==="rood"?2:1;
+  S.stats[q.s]+=pts;S.counts[q.cat]++;S.totalDone++;
+  S.gatesCleared=(S.gatesCleared||0)+1;if(q.rar==="rood")S.redCleared=(S.redCleared||0)+1;
+  G.combo++;G.best=Math.max(G.best,G.combo);G.cleared++;G.keys++;G.active=null;S.bestCombo=Math.max(S.bestCombo||0,G.combo);
+  S.recent.unshift({d:S.today.date,text:q.text,xp:x,cat:q.cat});S.recent=S.recent.slice(0,40);
+  queue.push({type:"cleared",rar:q.rar,x,combo:G.combo});gainXp(x);
+  checkTitles();save();render();flush();
+}
+function abandonGate(why){const G=gateState();if(!G.active)return;G.active=null;G.combo=0;G.keys++;save();render();toast(why==="tijd"?"De mist trok dicht op de zwarte route. Je reeks is weg.":"Route gestopt. Je reeks staat weer op 0.");}
+function gateTimeLeft(q){const s=Math.max(0,(q.deadline-Date.now())/1000|0);return pad(s/3600|0)+":"+pad((s%3600)/60|0)+":"+pad(s%60);}
+function gatesView(){
+  const t=S.today;
+  if(!t.perfect)return `<section class="win stack gate-locked"><span class="sys-label">Extra routes · op slot</span><div class="gates">${[0,1,2].map(()=>`<div class="gate closed" aria-hidden="true"><span class="gate-lbl">🔒</span></div>`).join("")}</div><p class="muted small" style="margin:0">Rond je 3 quests van vandaag af. Dan krijg je een routekaart en kun je zoveel extra routes lopen als je wilt.</p></section>`;
+  const G=gateState();
+  let h=`<section class="win stack"><div class="today-head"><div><span class="sys-label">Extra routes</span><h2>${G.active?"Je extra route":"Kies een extra route"}</h2></div><div class="timer">Reeks<b style="color:var(--gold)">×${gateMult().toFixed(1)}</b></div></div>`;
+  if(G.active){const q=G.active,gt=GATES[q.rar];
+    h+=`<article class="q gate-q" data-cat="${q.cat}" style="--c:${gt.c}"><div class="q-meta"><span style="color:${gt.c}">${gt.n}</span><span class="q-stat">+${STATS.find(s=>s.k===q.s).n}</span><span class="q-xp">${Math.round(q.xp*gateMult())} XP</span></div><div class="q-text">${esc(q.text)}</div>${q.h?`<div class="q-hint">${esc(q.h)}</div>`:""}`;
+    if(q.deadline)h+=`<div class="gate-timer">Mist trekt dicht over <b id="gtimer">${gateTimeLeft(q)}</b></div>`;
+    if(q.target){const st=q.step||(q.target>=40?[1,10]:[1,5]);
+      h+=`<div class="counter"><div class="counter-row"><span class="count-num">${fmt(q.prog)} <small>/ ${fmt(q.target)}</small></span><button class="cbtn" data-act="gcnt" data-v="-${st[0]}" aria-label="min ${st[0]}">−</button><button class="cbtn" data-act="gcnt" data-v="${st[0]}">+${st[0]}</button><button class="cbtn" data-act="gcnt" data-v="${st[1]}">+${st[1]}</button></div><div class="bar cbar"><i style="width:${Math.min(100,q.prog/q.target*100)}%"></i></div></div>`;
+      if(q.prog>=q.target)h+=`<button class="btn btn-done" data-act="gdone">Route voltooid</button>`;}
+    else h+=`<button class="btn btn-done${q.confirm?" gold":""}" data-act="gdone">${q.confirm?"Tik nogmaals om te bevestigen":"Route voltooid"}</button>`;
+    h+=`<button class="btn ghost" data-act="gquit">Stop deze route</button></article>`;
+  }else{
+    h+=`<p class="muted small" style="margin:0">Je hebt <b style="color:var(--gold)">${G.keys} ${G.keys===1?"routekaart":"routekaarten"}</b>. Elke kaart geeft een extra quest. Welke route het wordt, zie je pas als je hem openvouwt.</p>
+      <div class="gates">${[0,1,2].map(i=>`<button class="gate" data-act="gopen" data-i="${i}" aria-label="Open routekaart ${i+1}"><span class="gate-core" style="animation-delay:-${i*1.7}s"></span><span class="gate-lbl">?</span></button>`).join("")}</div>
+      <div class="gate-legend">${Object.values(GATES).map(g=>`<span><i style="background:${g.c}"></i>${g.n.split(" ")[0]} ×${g.m}</span>`).join("")}</div>`;
+  }
+  h+=`<p class="muted small" style="margin:0">Vandaag gelopen: <b style="color:var(--ink)">${G.cleared}</b> · Beste reeks: <b style="color:var(--ink)">${G.best}</b>. Elke route op rij geeft +10% XP, en de kans op blauwe en zwarte routes stijgt.</p></section>`;
+  return h;
+}
+
+/* ===================== AVATAR ===================== */
+// Eigen shōnen-held: leerling (E) groeit uit tot eindbaas (S).
+// Inktlijnen met lichte "handgetekende" vervorming, cel-shading + rastertint, en per element een eigen aura, effecten en uitrusting.
+const LOOK_OPTS={
+ element:[
+  {k:"dolomieten",n:"Dolomieten",c:"#ff9fb0",c2:"#ffe2c8",d:"#4a2c3c"},
+  {k:"alpen",n:"Alpen",c:"#7cc8ff",c2:"#ffffff",d:"#22405e"},
+  {k:"hooglanden",n:"Hooglanden",c:"#c2adff",c2:"#ece2ff",d:"#33284a"},
+  {k:"fjord",n:"Fjorden",c:"#62e0b4",c2:"#dcfff2",d:"#163a3e"},
+  {k:"andes",n:"Andes",c:"#ffae5a",c2:"#ffe8b8",d:"#4e3020"}],
+ hair:[{k:"bob",n:"Bob"},{k:"lang",n:"Lang"},{k:"staart",n:"Paardenstaart"},{k:"knot",n:"Knot"},{k:"pixie",n:"Kort"}],
+ hairCol:["#bfbac6","#eeeaf3","#1a1722","#6b3f22","#b8562a","#8e1f3a","#2b4ccc"],
+ bril:[{k:"nee",n:"Geen"},{k:"rond",n:"Rond"},{k:"recht",n:"Rechthoekig"}],
+ skin:["#ffe1c9","#f3c39c","#d99b6d","#a8693f","#6c4028"],
+ eyes:["#6a4224","#2f7bff","#25b56a","#c43b3b","#8a5cff"],
+ outfit:[{k:"jack",n:"Trainingsjack"},{k:"vest",n:"Vechtersvest"},{k:"mantel",n:"Mantel"}],
+ outCol:["#28324d","#7a1d2e","#1d5848","#3b2a60","#e6e2ec"]
+};
+const DEFAULT_LOOK={element:"dolomieten",hair:"bob",hairCol:0,skin:1,eyes:0,outfit:"jack",outCol:1,bril:"nee"};
+const OL="#140c18";
+function shade(hex,a){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;const f=a<0?0:255,p=Math.abs(a);r=Math.round((f-r)*p+r);g=Math.round((f-g)*p+g);b=Math.round((f-b)*p+b);return"#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);}
+const HAIR={
+ bob:{back:"M-36,-4 C-39,-37 -18,-47 0,-47 C19,-47 39,-37 36,-4 L38,25 L29,30 L21,25 L-21,25 L-29,30 L-38,25 Z",
+  front:"M-31,-4 C-34,-31 -18,-41 0,-41 C18,-41 34,-31 31,-4 L34,25 L27,22 L25,2 L20,-14 L9,-21 L-2,-16 L-12,-21 L-21,-13 L-25,2 L-27,22 L-34,25 Z",
+  strands:"M-28,-18 Q-30,2 -31,22 M28,-18 Q30,2 31,22 M-4,-39 Q-6,-28 -10,-20 M8,-39 Q10,-28 14,-18"},
+ staart:{back:"M-31,0 C-34,-31 -18,-43 0,-43 C18,-43 34,-31 31,0 Z M22,-32 C46,-36 56,-12 52,14 C50,32 42,46 34,60 C39,38 40,14 30,-6 Z",
+  front:"M-31,-6 C-33,-30 -18,-38 0,-38 C18,-38 33,-30 31,-6 L26,-16 L14,-24 L2,-22 L-10,-27 L-20,-20 L-26,-12 Z",
+  strands:"M-14,-34 Q-2,-31 12,-33 M42,-16 Q47,6 42,32 M-22,-26 Q-26,-18 -28,-10"},
+ pixie:{back:"M-33,6 C-39,-33 -18,-49 0,-49 C22,-49 39,-33 33,6 Z",
+  front:"M-31,-4 C-34,-31 -18,-43 0,-43 C18,-43 34,-31 31,-4 L27,-12 L22,-5 L18,-20 L10,-13 L2,-27 L-6,-14 L-14,-23 L-20,-9 L-26,-17 L-30,2 Z",
+  strands:"M-4,-41 Q-2,-31 2,-27 M12,-39 Q14,-29 10,-14 M-16,-36 Q-18,-28 -14,-23"},
+ stekels:{back:"M-28,6 L-46,-4 L-36,-14 L-54,-32 L-32,-34 L-38,-60 L-14,-46 L-8,-74 L8,-48 L22,-70 L26,-42 L50,-54 L38,-28 L56,-20 L36,-6 L46,8 L28,4 Z",
+  front:"M-31,-4 C-34,-30 -18,-40 0,-40 C18,-40 34,-30 31,-4 L27,-11 L25,-2 L19,-17 L13,-6 L8,-22 L2,-9 L-4,-25 L-9,-9 L-14,-21 L-19,-5 L-23,-16 L-29,-1 Z",
+  strands:"M-6,-38 Q-5,-30 -4,-24 M8,-38 Q9,-30 8,-22 M-18,-34 Q-16,-26 -14,-21 M20,-34 Q20,-26 19,-17"},
+ lang:{back:"M-32,-10 C-40,-40 -20,-48 0,-48 C24,-48 42,-38 34,-8 L44,30 L35,24 L40,54 L25,40 L22,66 L9,46 L0,62 L-9,46 L-22,66 L-25,40 L-40,54 L-35,24 L-44,30 Z",
+  front:"M-31,-4 C-34,-30 -18,-40 0,-40 C18,-40 34,-30 31,-4 L33,18 L26,5 L22,-14 L16,-5 L10,-22 L4,-7 L-2,-22 L-8,-5 L-14,-20 L-20,-3 L-24,-14 L-27,5 L-33,18 Z",
+  strands:"M-4,-38 Q-3,-28 -2,-22 M10,-37 Q12,-28 10,-22 M24,-28 Q28,-10 32,14 M-24,-28 Q-28,-10 -32,14"},
+ opzij:{back:"M-30,4 L-42,-8 L-35,-14 L-45,-30 L-29,-31 L-28,-49 L-9,-41 L4,-54 L16,-41 L36,-47 L33,-29 L45,-21 L33,-10 L40,3 L30,4 Z",
+  front:"M-31,-4 C-34,-30 -18,-40 0,-40 C18,-40 34,-30 31,-4 L28,-8 L22,-20 L12,-12 L0,-27 L-8,-14 L-18,-8 L-24,1 L-32,11 L-28,-3 Z",
+  strands:"M14,-36 Q8,-26 0,-26 M2,-38 Q-6,-26 -14,-12 M-10,-36 Q-18,-24 -24,-2"},
+ knot:{back:"M-31,0 C-34,-30 -18,-40 0,-40 C18,-40 34,-30 31,0 Z M-11,-47 A11,11 0 1,0 11,-47 A11,11 0 1,0 -11,-47 Z M-4,-56 L-10,-72 L0,-61 L8,-76 L7,-56 Z",
+  front:"M-31,-6 C-33,-30 -18,-38 0,-38 C18,-38 33,-30 31,-6 L26,-14 L18,-22 L8,-17 L0,-24 L-8,-17 L-18,-22 L-26,-14 Z",
+  strands:"M-14,-34 Q-10,-28 -8,-18 M12,-34 Q10,-28 8,-18 M0,-38 L0,-25"}
+};
+const SYM={
+ vuur:"M0,-1 C.5,-.4 .75,.1 .55,.5 C.32,.92 -.32,.92 -.55,.5 C-.75,.1 -.35,-.2 -.12,-.45 C-.12,0 .1,.12 .22,0 C.32,-.3 .12,-.62 0,-1Z",
+ storm:"M.25,-1 L-.55,.12 L-.05,.12 L-.3,1 L.55,-.22 L.05,-.22 Z",
+ schaduw:"M.35,-.92 A.92,.92 0 1,0 .35,.92 A.72,.72 0 1,1 .35,-.92Z",
+ vorst:"M0,-1 L.32,-.32 L1,0 L.32,.32 L0,1 L-.32,.32 L-1,0 L-.32,-.32Z",
+ natuur:"M0,1 C-.95,.3 -.62,-.62 0,-1 C.62,-.62 .95,.3 0,1Z",
+ berg:"M-1,.75 L-.4,-.35 L-.12,.05 L.32,-.8 L1,.75 Z"
+};
+const MARK={
+ vuur:"M-27,7 Q-21,5 -18,10 Q-22,10 -22,14 M-25,13 Q-21,13 -20,16",
+ storm:"M-28,5 L-23,9 L-26,11 L-19,16",
+ schaduw:"M-24,11 Q-17,17 -9,12 M-24,11 Q-26,15 -24,19",
+ vorst:"M-23,8 L-20,5 L-17,8 L-20,11 Z M-20,11 L-20,17",
+ natuur:"M-27,13 Q-22,6 -16,11 Q-22,15 -27,13 Z M-27,13 L-17,11"
+};
+let avUid=0;
+function lookOf(L){const o=Object.assign({},DEFAULT_LOOK,L||{});return{
+  el:LOOK_OPTS.element.find(e=>e.k===o.element)||LOOK_OPTS.element[0],hair:HAIR[o.hair]?o.hair:"bob",
+  hairCol:LOOK_OPTS.hairCol[o.hairCol]||LOOK_OPTS.hairCol[0],skin:LOOK_OPTS.skin[o.skin]||LOOK_OPTS.skin[1],
+  eyes:LOOK_OPTS.eyes[o.eyes]||LOOK_OPTS.eyes[0],bril:o.bril||"nee",outfit:o.outfit,outCol:LOOK_OPTS.outCol[o.outCol]||LOOK_OPTS.outCol[0]};}
+const f1=n=>n.toFixed(1);
+// Ledemaat: inktcontour, basis, schaduwzijde en rastertint
+function limb(x1,y1,x2,y2,w,col,p,tone){
+  const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy)||1,nx=-dy/len,ny=dx/len,sx=nx*w*0.22,sy=ny*w*0.22;
+  return `<line x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(x2)}" y2="${f1(y2)}" stroke="${OL}" stroke-width="${f1(w+3)}" stroke-linecap="round"/>`+
+   `<line x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(x2)}" y2="${f1(y2)}" stroke="${col}" stroke-width="${f1(w)}" stroke-linecap="round"/>`+
+   `<line x1="${f1(x1+sx*1.4)}" y1="${f1(y1+sy*1.4)}" x2="${f1(x2+sx*1.4)}" y2="${f1(y2+sy*1.4)}" stroke="${shade(col,-.45)}" stroke-width="${f1(w*0.42)}" stroke-linecap="round"/>`+
+   (tone?`<line x1="${f1(x1+sx*1.4)}" y1="${f1(y1+sy*1.4)}" x2="${f1(x2+sx*1.4)}" y2="${f1(y2+sy*1.4)}" stroke="url(#${p}tone)" stroke-width="${f1(w*0.36)}" stroke-linecap="round"/>`:"")+
+   "";}
+function sym(k,x,y,s,fill,extra){return `<path d="${SYM[k]||SYM.berg}" transform="translate(${f1(x)} ${f1(y)}) scale(${s})" fill="${fill}" stroke="${OL}" stroke-width="${f1(1.4/s)}" ${extra||""}/>`;}
+function flamePath(cx,bottom,W,top,n,r){let d=`M${cx-W},${bottom}`;const step=2*W/n;
+  for(let i=0;i<n;i++){const x0=cx-W+i*step,mid=x0+step/2,edge=Math.abs(mid-cx)/W;const peak=top+(edge*edge)*(bottom-top)*0.7+r()*18;
+    d+=` Q${f1(x0+step*0.05)},${f1((peak+bottom)/2)} ${f1(mid+(r()-.5)*6)},${f1(peak)} Q${f1(x0+step*0.95)},${f1((peak+bottom)/2)} ${f1(x0+step)},${f1(bottom-10-r()*24)}`;}
+  return d+` L${cx+W},${bottom} Q${cx},${bottom+26} ${cx-W},${bottom} Z`;}
+function spikyPath(cx,cy,rx,ry,n,r){let d="";for(let i=0;i<n*2;i++){const a=i/(n*2)*Math.PI*2-Math.PI/2,up=Math.sin(a)<0?1+(-Math.sin(a))*0.35:1;
+  const R=(i%2?0.72:1+r()*0.28)*up;d+=(i?"L":"M")+f1(cx+Math.cos(a)*rx*R)+","+f1(cy+Math.sin(a)*ry*R)+" ";}return d+"Z";}
+function bolt(x,y,len,r){let d=`M${f1(x)},${f1(y)}`,cx=x,cy=y;const seg=5;for(let i=0;i<seg;i++){cx+=(r()-.5)*16;cy+=len/seg;d+=` L${f1(cx)},${f1(cy)}`;}return d;}
+
+function crPath(pts,closed){const n=pts.length,Pq=i=>closed?pts[(i+n)%n]:pts[Math.max(0,Math.min(n-1,i))];
+  let d=`M${f1(pts[0][0])},${f1(pts[0][1])}`;const last=closed?n:n-1;
+  for(let i=0;i<last;i++){const p0=Pq(i-1),p1=Pq(i),p2=Pq(i+1),p3=Pq(i+2);
+    d+=` C${f1(p1[0]+(p2[0]-p0[0])/6)},${f1(p1[1]+(p2[1]-p0[1])/6)} ${f1(p2[0]-(p3[0]-p1[0])/6)},${f1(p2[1]-(p3[1]-p1[1])/6)} ${f1(p2[0])},${f1(p2[1])}`;}
+  return d+(closed?" Z":"");}
+// ---------- Landschappen: elk gebergte een eigen silhouet, lucht en sfeer ----------
+const LAND={
+ dolomieten:{kind:"spires",s1:"#3a2850",s2:"#b9607d",s3:"#ffb48a",far:"#b56d80",mid:"#86475d",near:"#5c3447",ground:"#41242f",rock:"#e2a993",pine:"#2f2230",cloud:"#f6d6d0",grass:"#9a6a72",snowFrom:4,lit:"#ffd0b0"},
+ alpen:{kind:"horns",s1:"#2b6db4",s2:"#69ade6",s3:"#d3ecfa",far:"#8aa3bd",mid:"#5d7c99",near:"#4c8a52",ground:"#356b3c",rock:"#8a97a6",pine:"#1f4a2c",cloud:"#ffffff",grass:"#7cc070",snowFrom:0,lit:"#ffffff"},
+ hooglanden:{kind:"rolling",s1:"#4b5064",s2:"#8c8ca4",s3:"#cdc7d3",far:"#7f7493",mid:"#665a7c",near:"#6a4f78",ground:"#4a3858",rock:"#8a8494",pine:"#2f3a34",cloud:"#e9e5ef",grass:"#a77fb6",snowFrom:99,mist:"#eeeaf3",lit:"#d9cfe6"},
+ fjord:{kind:"cliffs",s1:"#06142a",s2:"#0f2d48",s3:"#1d4a5e",far:"#21394d",mid:"#172e40",near:"#122636",ground:"#0d1d29",rock:"#3c5466",pine:"#0d2a24",cloud:"#cfe2ea",grass:"#3f7a68",snowFrom:3,water:"#1f5266",au1:"#5cf0b4",au2:"#a68cff",lit:"#9fd6e6"},
+ andes:{kind:"volcano",s1:"#d9632f",s2:"#f2a35a",s3:"#ffe3a6",far:"#c47a4c",mid:"#a2583a",near:"#80472c",ground:"#5c3220",rock:"#c99a6e",pine:"#4a3a1e",cloud:"#fff1dc",grass:"#c9a25a",snowFrom:2,lit:"#ffe6c0"}
+};
+function ridge(kind,baseY,h,rb){
+  const out=[];
+  if(kind==="spires"){let x=-14;while(x<250){const w=24+rb()*22,top=baseY-h*(0.55+rb()*0.45),b=baseY-h*0.14;
+      const pts=[[x,baseY+2],[x,b],[x+w*0.12,top+10],[x+w*0.26,top],[x+w*0.5,top+6],[x+w*0.7,top-4],[x+w*0.86,top+12],[x+w,b],[x+w,baseY+2]];
+      out.push({pts,lit:[[x,b],[x+w*0.12,top+10],[x+w*0.26,top]],top:[x+w*0.26,top]});x+=w+2+rb()*10;}}
+  else if(kind==="horns"){for(let i=0;i<3;i++){const x0=-40+i*92+rb()*14,w=112+rb()*30,top=baseY-h*(0.62+rb()*0.38),px=x0+w*(0.45+rb()*0.15);
+      const pts=[[x0,baseY+2],[x0,baseY-h*0.1],[x0+w*0.24,baseY-h*0.42],[px,top],[px+w*0.13,top+h*0.2],[px+w*0.22,top+h*0.3],[x0+w,baseY-h*0.08],[x0+w,baseY+2]];
+      out.push({pts,lit:[[x0+w*0.24,baseY-h*0.42],[px,top]],top:[px,top],L:[x0+w*0.24,baseY-h*0.42],R:[px+w*0.22,top+h*0.3]});}}
+  else if(kind==="rolling"){const pts=[[-20,baseY+2]];for(let x=-20;x<=260;x+=46)pts.push([x,baseY-h*(0.22+rb()*0.34)]);pts.push([260,baseY+2]);
+      out.push({pts,smooth:true});}
+  else if(kind==="cliffs"){
+      out.push({pts:[[-20,baseY+2],[-20,baseY-h*1.02],[22,baseY-h*0.98],[48,baseY-h*0.8],[64,baseY-h*0.4],[74,baseY-h*0.08],[80,baseY+2]],lit:[[22,baseY-h*0.98],[48,baseY-h*0.8]],top:[22,baseY-h*0.98],L:[-20,baseY-h*0.92],R:[48,baseY-h*0.8]});
+      out.push({pts:[[86,baseY+2],[100,baseY-h*0.3],[124,baseY-h*0.42],[146,baseY-h*0.28],[156,baseY+2]]});
+      out.push({pts:[[260,baseY+2],[260,baseY-h*0.92],[214,baseY-h*0.95],[190,baseY-h*0.74],[174,baseY-h*0.34],[166,baseY-h*0.06],[160,baseY+2]],lit:[[214,baseY-h*0.95],[190,baseY-h*0.74]],top:[214,baseY-h*0.95],L:[190,baseY-h*0.74],R:[260,baseY-h*0.85]});}
+  else { // vulkaan + tafelbergen
+      out.push({pts:[[-20,baseY+2],[-20,baseY-h*0.34],[14,baseY-h*0.38],[40,baseY-h*0.36],[54,baseY-h*0.2],[62,baseY+2]],lit:[[14,baseY-h*0.38],[40,baseY-h*0.36]]});
+      out.push({pts:[[40,baseY+2],[108,baseY-h*0.46],[142,baseY-h*0.9],[150,baseY-h*0.86],[168,baseY-h*0.88],[176,baseY-h*0.93],[212,baseY-h*0.5],[262,baseY+2]],lit:[[108,baseY-h*0.46],[142,baseY-h*0.9]],top:[159,baseY-h*0.9],L:[124,baseY-h*0.66],R:[196,baseY-h*0.7],crater:true});}
+  return out;
+}
+function landscape(E,stage,el,p,mini){
+  const PL=LAND[E]||LAND.dolomieten, rb=rng(hash(E+"land"+stage)), cx=120, ground=300;
+  const hz=[252,246,240,234,228,224][stage], sc=[0.42,0.6,0.8,1,1.12,1.22][stage];
+  let o=`<rect x="0" y="0" width="240" height="320" fill="url(#${p}sky)"/>`;
+  const poly=(pts,fill,op,smooth)=>`<path d="${smooth?crPath(pts,true):"M"+pts.map(q=>f1(q[0])+","+f1(q[1])).join(" L")+" Z"}" fill="${fill}"${op<1?` opacity="${op}"`:""}/>`;
+  // lucht: sterren en noorderlicht, zon of maan
+  if(E==="fjord"){
+    for(let i=0;i<30;i++)o+=`<circle cx="${f1(rb()*240)}" cy="${f1(rb()*150)}" r="${f1(.4+rb()*.9)}" fill="#fff" opacity="${f1(.3+rb()*.6)}"/>`;
+    const n=1+Math.min(stage,3),au=0.3+stage*0.12;
+    for(let j=0;j<n;j++){const y0=34+j*20+rb()*10;let d=`M-20,${f1(y0)}`;for(let x=-20;x<=260;x+=40)d+=` Q${f1(x+20)},${f1(y0+(rb()-.5)*46)} ${f1(x+40)},${f1(y0+(rb()-.5)*18)}`;
+      o+=`<path class="av-aura" d="${d}" stroke="${j%2?PL.au2:PL.au1}" stroke-width="${f1(12+stage*3)}" fill="none" opacity="${f1(Math.min(.8,au))}"${mini?"":` filter="url(#${p}sm)"`}/>`;}
+    o+=`<circle cx="192" cy="46" r="10" fill="#eef4ff" opacity=".9"/><circle cx="196" cy="43" r="9" fill="${PL.s1}"/>`;
+  }else if(E==="andes"){const sy=58+stage*4;o+=`<circle cx="52" cy="${f1(sy)}" r="${f1(42+stage*5)}" fill="url(#${p}sun)"/><circle cx="52" cy="${f1(sy)}" r="${f1(16+stage)}" fill="#fff6dc"/>`;}
+  else if(E==="alpen"){o+=`<circle cx="202" cy="40" r="28" fill="url(#${p}sun)" opacity=".75"/><circle cx="202" cy="40" r="10" fill="#fffbe8"/>`;
+    for(let i=0;i<3;i++){const x=20+rb()*160,y=30+rb()*50;o+=`<g fill="#fff" opacity=".85"><ellipse cx="${f1(x)}" cy="${f1(y)}" rx="18" ry="6"/><ellipse cx="${f1(x+10)}" cy="${f1(y-4)}" rx="10" ry="6"/></g>`;}}
+  else if(E==="dolomieten"){o+=`<circle cx="${cx-46}" cy="${f1(hz-18)}" r="48" fill="url(#${p}sun)" opacity=".9"/>`;}
+  else if(E==="hooglanden"){for(let i=0;i<4;i++){const x=-10+rb()*240,y=24+rb()*70;o+=`<ellipse cx="${f1(x)}" cy="${f1(y)}" rx="${f1(40+rb()*30)}" ry="${f1(9+rb()*6)}" fill="#ffffff" opacity=".22"/>`;}
+    if(stage>=5)o+=`<circle cx="${cx}" cy="70" r="40" fill="url(#${p}sun)" opacity=".7"/>`;}
+  if(stage>=5){let d="";const sy=E==="andes"?78:80;for(let i=0;i<16;i++){const a2=-Math.PI+i/15*Math.PI,w=.03;d+=`M${cx},${f1(sy)} L${f1(cx+Math.cos(a2-w)*260)},${f1(sy+Math.sin(a2-w)*260)} L${f1(cx+Math.cos(a2+w)*260)},${f1(sy+Math.sin(a2+w)*260)} Z `;}o+=`<path d="${d}" fill="#ffffff" opacity=".08"/>`;}
+  // verre keten met sneeuw en zonzijde
+  const drawRidge=(baseY,h,fill,op,snowy)=>{ridge(PL.kind,baseY,h,rb).forEach(m=>{o+=poly(m.pts,fill,op,m.smooth);
+      if(m.lit&&!mini)o+=`<path d="M${m.lit.map(q=>f1(q[0])+","+f1(q[1])).join(" L")}" stroke="${PL.lit}" stroke-width="2" fill="none" opacity=".45" stroke-linejoin="round"/>`;
+      if(snowy&&m.top){const t=m.top,Lp=m.L||[t[0]-14,t[1]+22],Rp=m.R||[t[0]+14,t[1]+22],f=.5;
+        const lx=t[0]+(Lp[0]-t[0])*f,ly=t[1]+(Lp[1]-t[1])*f,rx=t[0]+(Rp[0]-t[0])*f,ry=t[1]+(Rp[1]-t[1])*f;
+        o+=`<path d="M${f1(t[0])},${f1(t[1]-(m.crater?2:0))} L${f1(rx)},${f1(ry)} L${f1(t[0]+(rx-t[0])*0.6)},${f1(ry-4)} L${f1(t[0]+(rx-t[0])*0.3)},${f1(ry+3)} L${f1(t[0])},${f1((ly+ry)/2-3)} L${f1(t[0]+(lx-t[0])*0.4)},${f1(ly+2)} L${f1(lx)},${f1(ly)} Z" fill="#f6f9fc" opacity=".95"/>`;}});};
+  drawRidge(hz,150*sc,PL.far,.95,stage>=PL.snowFrom);
+  if(E==="hooglanden")for(let j=0;j<3;j++)o+=`<rect x="-20" y="${f1(hz-58*sc+j*20)}" width="280" height="${f1(9+rb()*8)}" rx="6" fill="${PL.mist}" opacity="${f1(.2+rb()*.12)}"${mini?"":` filter="url(#${p}sm)"`}/>`;
+  if(stage>=2&&stage<=4)drawRidge(hz+14,92*sc,PL.mid,1,stage>=PL.snowFrom+1&&PL.kind!=="rolling");
+  // water: fjord (E–B) en loch (E–C)
+  if((E==="fjord"&&stage<=3)||(E==="hooglanden"&&stage<=2)){const wy=hz+4;o+=`<rect x="-20" y="${f1(wy)}" width="280" height="22" fill="${PL.water||"#8f8aa6"}" opacity=".9"/>`;
+    for(let i=0;i<6;i++){const x=rb()*220,y=wy+4+rb()*14;o+=`<path d="M${f1(x)},${f1(y)} l${f1(14+rb()*16)},0" stroke="#ffffff" stroke-opacity=".35" stroke-width="1.2"/>`;}}
+  // wolkenzee (A, S)
+  if(stage>=4){const cy0=hz-(stage>=5?2:18);o+=`<g fill="${PL.cloud}" opacity=".95">`;for(let i=0;i<10;i++){const x=-24+i*30+rb()*10;o+=`<circle cx="${f1(x)}" cy="${f1(cy0+rb()*6)}" r="${f1(14+rb()*12)}"/>`;}o+=`<rect x="-20" y="${f1(cy0)}" width="280" height="${f1(320-cy0)}"/></g>`;}
+  // voorgrond
+  const gy=hz+(stage>=4?34:24);
+  const front=[[-20,330],[-20,gy+6]];for(let x=-20;x<=260;x+=40)front.push([x,gy+(rb()-.5)*(stage>=3?14:8)]);front.push([260,gy+6],[260,330]);
+  o+=poly(front,stage>=3?PL.rock:PL.near,1,true);
+  o+=`<rect x="-20" y="290" width="280" height="40" fill="${stage>=3?shade(PL.rock,-.35):PL.ground}" opacity=".85"/>`;
+  if(stage<=1){ // bloemenweide en pad
+    o+=`<path d="M${cx-34},330 C${cx-12},${gy+46} ${cx+44},${gy+30} ${cx+12},${gy+4}" stroke="${shade(PL.near,.35)}" stroke-width="12" fill="none" stroke-linecap="round" opacity=".7"/>`;
+    for(let i=0;i<22;i++){const x=rb()*240,y=gy+8+rb()*(300-gy);o+=`<path d="M${f1(x)},${f1(y)} l-2,-5 M${f1(x)},${f1(y)} l0,-6 M${f1(x)},${f1(y)} l2,-5" stroke="${PL.grass}" stroke-width="1.1"/>`;
+      if(i%2)o+=`<circle cx="${f1(x+3)}" cy="${f1(y-6)}" r="1.6" fill="${["#ffd27a","#ffffff","#ff9cc0",el.c2][i%4]}"/>`;}}
+  if(stage===1){o+=`<g><rect x="34" y="${f1(gy-26)}" width="4" height="40" fill="#6b4a2e" stroke="#2a1c12" stroke-width="1"/><path d="M38,${f1(gy-24)} l26,0 l6,5 l-6,5 l-26,0 Z" fill="${el.c}" stroke="#2a1c12" stroke-width="1"/><path d="M34,${f1(gy-12)} l-24,0 l-6,5 l6,5 l24,0 Z" fill="#f1f4f6" stroke="#2a1c12" stroke-width="1"/></g>`;
+    if(E==="alpen")o+=`<g transform="translate(196 ${f1(gy-14)})"><rect x="-12" y="-2" width="24" height="16" fill="#8a5a36" stroke="#2a1c12"/><path d="M-16,0 L0,-14 L16,0 Z" fill="#c9503c" stroke="#2a1c12"/><rect x="-3" y="6" width="6" height="8" fill="#2a1c12"/></g>`;}
+  if(stage===2){for(let i=0;i<18;i++){const x=-6+i*14+rb()*6,y=gy+2+rb()*6,hh=16+rb()*12;o+=`<path d="M${f1(x)},${f1(y-hh)} L${f1(x-hh*0.36)},${f1(y)} L${f1(x+hh*0.36)},${f1(y)} Z" fill="${PL.pine}"/><path d="M${f1(x)},${f1(y-hh)} L${f1(x+hh*0.36)},${f1(y)} L${f1(x+hh*0.1)},${f1(y)} Z" fill="#000" opacity=".2"/>`;}}
+  if(stage===3){o+=`<g transform="translate(194 ${f1(gy+20)})"><path d="M-22,10 L0,-16 L22,10 Z" fill="${el.c}" stroke="#2a1c12" stroke-width="1.4"/><path d="M0,-16 L22,10 L8,10 Z" fill="#000" opacity=".2"/><path d="M-5,10 L0,-2 L5,10 Z" fill="#2a1c12"/></g>`;
+    if(PL.snowFrom<=3)for(let i=0;i<5;i++)o+=`<ellipse cx="${f1(rb()*240)}" cy="${f1(gy+10+rb()*40)}" rx="${f1(10+rb()*14)}" ry="3" fill="#f4f7fa" opacity=".8"/>`;}
+  if(stage>=3)for(let i=0;i<6;i++){const x=rb()*240,y=gy+16+rb()*(290-gy-10),s=4+rb()*7;o+=`<path d="M${f1(x-s)},${f1(y)} L${f1(x-s*0.4)},${f1(y-s*0.9)} L${f1(x+s*0.6)},${f1(y-s*0.7)} L${f1(x+s)},${f1(y)} Z" fill="${shade(PL.rock,-.2)}" stroke="#1c1a20" stroke-width=".8"/>`;}
+  if(stage===4){o+=`<g transform="translate(40 ${f1(gy+18)})" stroke="#1c1a20" stroke-width="1">${[[0,0,13,5],[1,-8,10,4],[-1,-15,8,3.5],[0,-21,5,3]].map(([x,y,rx,ry])=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${shade(PL.rock,.12)}"/>`).join("")}</g>`;}
+  if(E==="andes"&&stage>=3)for(let i=0;i<2;i++){const x=30+i*120+rb()*30,y=60+rb()*40;o+=`<path d="M${f1(x)},${f1(y)} q8,-6 16,0 q8,-6 16,0" stroke="#2a1c12" stroke-width="2" fill="none"/>`;}
+  if(E==="andes"&&stage<=2)for(let i=0;i<4;i++){const y=gy+10+i*12;o+=`<path d="M-20,${f1(y)} Q120,${f1(y-8)} 260,${f1(y+2)}" stroke="${shade(PL.near,.25)}" stroke-width="1.4" fill="none" opacity=".7"/>`;}
+  if(stage>=5)o+=`<path d="M${cx-96},322 L${cx-48},${ground-4} L${cx-18},${ground-12} L${cx+10},${ground-7} L${cx+52},${ground-14} L${cx+100},322 Z" fill="${PL.rock}" stroke="#1c1a20" stroke-width="1.6" stroke-linejoin="round"/><path d="M${cx-48},${ground-4} L${cx-18},${ground-12} L${cx+10},${ground-7}" stroke="${PL.lit}" stroke-width="2" fill="none" opacity=".6"/>`;
+  return o;
+}
+
+function avatarSVG(look,stage,stats,opt){
+  opt=opt||{};const L=lookOf(look),el=L.el,E=el.k,p="av"+(++avUid)+"_";
+  stats=stats||{STR:10,VIT:10,AGI:10,CHA:10,VER:10};
+  const g=k=>Math.max(0,(stats[k]||10)-10);
+  const t=stage/5,k=1-t,cx=120,ground=300,mini=!!opt.mini,sil=!!opt.sil,fx=!mini&&!sil;
+  const str=Math.min(g("STR"),30);
+  const hr=26-1.5*t, H=228+26*t;
+  const act=stage>=4, pw=stage===3;
+  const headCY=ground-H+1.2*hr+(act?12:0), hX=cx+(act?-12:0);
+  const shY=headCY+1.13*hr+5+2*t, torsoH=52+22*t, waistY=shY+torsoH;
+  const sw=17+8*t+str*0.15, hipW=17+4*t, aw=7.4+2*t+str*0.06, lw=12+4*t;
+  const hc=L.hairCol, hcD=shade(hc,-.38);
+  const skin=L.skin, skinS=shade(skin,-.26), oc=shade(L.outCol,-.12), ocS=shade(oc,-.4);
+  const pants=shade(oc,-.55), sash=stage>=2?el.c:"#e8e0cc", boots="#1c1824";
+  const r=rng(hash(JSON.stringify(look||{})+stage));
+  const HS=hr/30, headT=`translate(${f1(hX)} ${f1(headCY)}) rotate(${act?-8:0}) scale(${HS.toFixed(3)})`, sk=f1(1/HS);
+  let o=`<svg viewBox="0 0 240 320" role="img" aria-label="${esc(opt.label||"Avatar")}"><defs>
+  <radialGradient id="${p}ag" cx="50%" cy="58%" r="55%"><stop offset="0" stop-color="${el.c}" stop-opacity="${(0.14+Math.min(g("VIT"),40)*0.008+(stage>=3?0.18:0)).toFixed(2)}"/><stop offset="1" stop-color="${el.c}" stop-opacity="0"/></radialGradient>
+  <linearGradient id="${p}fl" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="${el.c}" stop-opacity=".95"/><stop offset=".55" stop-color="${el.c}" stop-opacity=".55"/><stop offset="1" stop-color="${el.c2}" stop-opacity="0"/></linearGradient>
+  <linearGradient id="${p}hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${shade(hc,.12)}"/><stop offset=".6" stop-color="${hc}"/><stop offset="1" stop-color="${hcD}"/></linearGradient>
+  <radialGradient id="${p}ir" cx="50%" cy="70%" r="70%"><stop offset="0" stop-color="${false?el.c2:shade(L.eyes,.45)}"/><stop offset=".6" stop-color="${false?el.c:L.eyes}"/><stop offset="1" stop-color="${false?el.d:shade(L.eyes,-.45)}"/></radialGradient>
+  <linearGradient id="${p}ice" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".9"/><stop offset=".5" stop-color="${el.c}" stop-opacity=".55"/><stop offset="1" stop-color="${el.d}" stop-opacity=".5"/></linearGradient>
+  <pattern id="${p}tone" width="3.2" height="3.2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="1.6" cy="1.6" r=".7" fill="#000" fill-opacity=".25"/></pattern>
+  <filter id="${p}gl" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="2.4"/></filter>
+  <filter id="${p}sm" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+  <filter id="${p}ink" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="2" seed="${(hash(p)%50)}" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <linearGradient id="${p}sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${(LAND[E]||LAND.dolomieten).s1}"/><stop offset=".55" stop-color="${(LAND[E]||LAND.dolomieten).s2}"/><stop offset="1" stop-color="${(LAND[E]||LAND.dolomieten).s3}"/></linearGradient><radialGradient id="${p}sun"><stop offset="0" stop-color="${el.c2}"/><stop offset=".5" stop-color="${el.c}" stop-opacity=".7"/><stop offset="1" stop-color="${el.c}" stop-opacity="0"/></radialGradient>
+  <filter id="${p}sil"><feColorMatrix type="matrix" values="0 0 0 0 .06 0 0 0 0 .1 0 0 0 0 .2 0 0 0 1 0"/></filter></defs>`;
+  o+=`<g ${sil?`filter="url(#${p}sil)" opacity=".9"`:""}>`;
+
+  /* ---------- ACHTERGROND & AURA ---------- */
+  o+=landscape(E,stage,el,p,mini);
+  if(!mini)o+=`<ellipse cx="${cx}" cy="190" rx="90" ry="150" fill="#000" opacity=".07" filter="url(#${p}sm)"/>`;
+  o+=`<ellipse cx="${cx}" cy="${ground+4}" rx="${46+20*t}" ry="8" fill="#000" opacity=".5"/>`;
+  if(!mini)o+=`<ellipse cx="${cx}" cy="${ground+4}" rx="${70+10*t}" ry="11" fill="none" stroke="${el.c}" stroke-opacity="${stage>=3?.6:.25}" stroke-dasharray="4 6"/>`;
+  o+=`<ellipse class="av-aura" cx="${cx}" cy="${f1((headCY+ground)/2)}" rx="${90+20*t}" ry="${f1((ground-headCY)/2+50)}" fill="url(#${p}ag)"/>`;
+  if(stage>=3){
+    const lv=stage-3, W=50+18*lv+sw*0.5, top=headCY-30-24*lv;
+    if(E==="vuur"){
+      o+=`<path class="av-flame" d="${flamePath(cx,ground,W,top,stage>=5?9:7,r)}" fill="url(#${p}fl)" opacity="${stage>=5?.92:.7}"/>`;
+      if(stage>=4)o+=`<path class="av-flame av-flame2" d="${flamePath(cx,ground,W*0.7,top+30,6,r)}" fill="${el.c2}" opacity=".3"/>`;
+    }else if(E==="storm"){
+      o+=`<path class="av-flick" d="${spikyPath(cx,(headCY+ground)/2+10,W+6,(ground-top)/2+6,stage>=5?18:13,r)}" fill="${el.c}" fill-opacity=".14" stroke="${el.c2}" stroke-opacity=".55" stroke-width="1.3" stroke-linejoin="miter"/>`;
+      if(stage>=4)o+=`<path d="${spikyPath(cx,(headCY+ground)/2+16,W*0.72,(ground-top)/2*0.8,12,r)}" fill="${el.c2}" fill-opacity=".1"/>`;
+    }else if(E==="schaduw"){
+      o+=`<g filter="url(#${p}sm)" opacity="${stage>=5?.9:.7}">`;
+      for(let i=0;i<7+lv*2;i++){const x=cx-W+((i+0.5)/(7+lv*2))*2*W,h=(ground-top)*(0.55+r()*0.45);
+        o+=`<path class="av-flick" style="animation-delay:${f1(r()*1.2)}s" d="M${f1(x)},${ground} C${f1(x-24)},${f1(ground-h*0.35)} ${f1(x+24)},${f1(ground-h*0.7)} ${f1(x+(r()-.5)*30)},${f1(ground-h)}" stroke="${i%2?el.d:"#3a1a5e"}" stroke-width="${f1(16+r()*16)}" stroke-linecap="round" fill="none"/>`;}
+      o+=`</g><ellipse cx="${cx}" cy="${ground}" rx="${W+10}" ry="14" fill="#0a0410" opacity=".85"/>`;
+      o+=`<path d="${spikyPath(cx,(headCY+ground)/2+10,W,(ground-top)/2,16,r)}" fill="none" stroke="${el.c}" stroke-opacity=".35" stroke-width="1"/>`;
+    }else if(E==="vorst"){
+      for(let i=0;i<8+lv*3;i++){const x=cx-W-10+r()*(2*W+20),h=40+r()*((ground-top)*0.75),w=5+r()*8,tl=(x-cx)*0.15;
+        o+=`<path d="M${f1(x-w)},${ground} L${f1(x+tl)},${f1(ground-h)} L${f1(x+w)},${ground} Z" fill="url(#${p}ice)" opacity=".6" stroke="${el.c2}" stroke-opacity=".7" stroke-width=".8"/>`;}
+      o+=`<ellipse cx="${cx}" cy="${ground+2}" rx="${W+20}" ry="10" fill="${el.c2}" opacity=".25"/>`;
+    }else if(E==="natuur"){
+      o+=`<ellipse class="av-aura" cx="${cx}" cy="${f1((headCY+ground)/2+10)}" rx="${W+10}" ry="${f1((ground-top)/2)}" fill="none" stroke="${el.c}" stroke-opacity=".35" stroke-width="10" filter="url(#${p}gl)"/>`;
+      for(let i=0;i<10+lv*4;i++){const a=r()*Math.PI*2,x=cx+Math.cos(a)*(W+r()*14),y=(headCY+ground)/2+10+Math.sin(a)*((ground-top)/2),rot=a*57+90;
+        o+=`<g class="av-bob" style="animation-delay:${f1(r()*3)}s"><path d="${SYM.natuur}" transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(rot)}) scale(${f1(4+r()*3)})" fill="${i%3?el.c:el.c2}" stroke="${el.d}" stroke-width=".25"/></g>`;}
+    }
+  }
+  // snelheidslijnen (AGI)
+  if(!mini)for(let i=0;i<Math.min(Math.floor(g("AGI")/5),7);i++){const y=110+r()*170,x=r()<.5?8+r()*24:178+r()*30;o+=`<line x1="${f1(x)}" y1="${f1(y)}" x2="${f1(x+20+r()*16)}" y2="${f1(y)}" stroke="${el.c2}" stroke-opacity=".45" stroke-width="1.4" stroke-linecap="round"/>`;}
+
+  /* ---------- PERSONAGE ---------- */
+  // Houding: E–C rustig staand, B krachthouding, A–S actiepose met wapen.
+  const P=(x,y)=>[x,y], lerp=(a,b,u)=>[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u];
+  let Ls,Rs,wc,armL,armR,legL,legR,handL="relax",handR="relax";
+  const kneeYc=waistY+(ground-waistY)*0.5;
+  if(act){
+    Ls=P(cx-sw-8,shY+5);Rs=P(cx+sw-6,shY-3);wc=P(cx+2,waistY);
+    armL=[Ls,P(Ls[0]-22,Ls[1]+torsoH*0.28),P(Ls[0]-26,Ls[1]-16)];handL="fist";
+    armR=[Rs,P(Rs[0]+18,Rs[1]+torsoH*0.5),P(Rs[0]+20,Rs[1]+torsoH*0.92)];handR="grip";
+    legL=[P(wc[0]-hipW*0.5,wc[1]+8),P(wc[0]-hipW-24,wc[1]+(ground-wc[1])*0.46),P(wc[0]-hipW-30,ground-9)];
+    legR=[P(wc[0]+hipW*0.5,wc[1]+8),P(wc[0]+hipW+18,wc[1]+(ground-wc[1])*0.56),P(wc[0]+hipW+48,ground-7)];
+  }else if(pw){
+    Ls=P(cx-sw,shY);Rs=P(cx+sw,shY);wc=P(cx,waistY);
+    armL=[Ls,P(cx-sw-13,shY+torsoH*0.58),P(cx-hipW-11,waistY+1)];armR=[Rs,P(cx+sw+13,shY+torsoH*0.58),P(cx+hipW+11,waistY+1)];handL=handR="fist";
+    legL=[P(cx-hipW*0.5,waistY+8),P(cx-hipW-10,kneeYc),P(cx-hipW-16,ground-9)];legR=[P(cx+hipW*0.5,waistY+8),P(cx+hipW+10,kneeYc),P(cx+hipW+16,ground-9)];
+  }else{
+    Ls=P(cx-sw,shY);Rs=P(cx+sw,shY);wc=P(cx,waistY);
+    armL=[Ls,P(Ls[0]-4,shY+torsoH*0.52),P(Ls[0]-2,waistY+14)];armR=[Rs,P(Rs[0]+4,shY+torsoH*0.52),P(Rs[0]+2,waistY+14)];
+    legL=[P(cx-hipW*0.5,waistY+8),P(cx-hipW*0.62-2,kneeYc),P(cx-hipW*0.72-3,ground-9)];legR=[P(cx+hipW*0.5,waistY+8),P(cx+hipW*0.62+2,kneeYc),P(cx+hipW*0.72+3,ground-9)];
+  }
+  const nb=lerp(Ls,Rs,0.5);
+  const rimC=el.c2, showRim=stage>=2;
+  // volumineus ledemaat met schaduwzijde, randlicht en plooi
+  function limbV(J,W,col,o2){o2=o2||{};
+    const pts=[J[0],lerp(J[0],J[1],.5),J[1],lerp(J[1],J[2],.5),J[2]];
+    const A=[],Bs=[];
+    for(let i=0;i<pts.length;i++){const a=pts[Math.max(0,i-1)],b=pts[Math.min(pts.length-1,i+1)],dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1,nx=-dy/l,ny=dx/l;
+      A.push([pts[i][0]+nx*W[i],pts[i][1]+ny*W[i]]);Bs.push([pts[i][0]-nx*W[i],pts[i][1]-ny*W[i]]);}
+    const ax=A.reduce((s,q)=>s+q[0],0),bx=Bs.reduce((s,q)=>s+q[0],0),dark=ax>bx?A:Bs,lite=ax>bx?Bs:A;
+    const inner=pts.map((q,i)=>lerp(q,dark[i],0.2));
+    let s=`<path d="${crPath([...A,...Bs.slice().reverse()],true)}" fill="${col}" stroke="${OL}" stroke-width="1.9" stroke-linejoin="round"/>`;
+    s+=`<path d="${crPath([...dark,...inner.slice().reverse()],true)}" fill="#000" opacity=".3"/>`;
+    if(!mini&&o2.tone)s+=`<path d="${crPath([...dark,...inner.slice().reverse()],true)}" fill="url(#${p}tone)"/>`;
+    if(showRim&&o2.rim!==false)s+=`<path d="${crPath(lite.slice(0,4),false)}" stroke="${rimC}" stroke-width="1.2" fill="none" opacity=".8"/>`;
+    if(o2.fold)s+=`<path d="M${f1(J[1][0]-3)},${f1(J[1][1]-4)} q3,3 1,7 M${f1(J[1][0]+2)},${f1(J[1][1]+2)} q-2,3 0,6" stroke="${OL}" stroke-width="1" fill="none" opacity=".7"/>`;
+    return s;}
+  function handV(J,type,col){const a=J[1],b=J[2],dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1,ux=dx/l,uy=dy/l,ang=Math.atan2(dy,dx)*57.3;
+    const hx=b[0]+ux*aw*0.45,hy=b[1]+uy*aw*0.45;let s="";
+    if(type==="relax"){s+=`<g transform="translate(${f1(hx)} ${f1(hy)}) rotate(${f1(ang)})"><path d="M${f1(-aw*0.5)},${f1(-aw*0.36)} C${f1(aw*0.4)},${f1(-aw*0.5)} ${f1(aw*0.9)},${f1(-aw*0.2)} ${f1(aw*0.85)},${f1(aw*0.12)} C${f1(aw*0.75)},${f1(aw*0.42)} ${f1(-aw*0.2)},${f1(aw*0.5)} ${f1(-aw*0.5)},${f1(aw*0.34)} Z" fill="${col}" stroke="${OL}" stroke-width="1.7"/><path d="M${f1(aw*0.1)},${f1(aw*0.05)} L${f1(aw*0.7)},${f1(aw*0.08)}" stroke="${skinS}" stroke-width="1"/></g>`;}
+    else{const R=aw*0.6;s+=`<g transform="translate(${f1(hx)} ${f1(hy)}) rotate(${f1(ang)})"><rect x="${f1(-R)}" y="${f1(-R*0.9)}" width="${f1(R*2)}" height="${f1(R*1.8)}" rx="${f1(R*0.6)}" fill="${col}" stroke="${OL}" stroke-width="1.8"/><path d="M${f1(R*0.55)},${f1(-R*0.7)} L${f1(R*0.55)},${f1(R*0.7)}" stroke="${skinS}" stroke-width="1.1"/><path d="M${f1(R*0.55)},${f1(-R*0.25)} l${f1(R*0.4)},0 M${f1(R*0.55)},${f1(R*0.2)} l${f1(R*0.4)},0" stroke="${skinS}" stroke-width=".9"/><path d="M${f1(-R*0.2)},${f1(R*0.9)} q${f1(R*0.6)},${f1(R*0.2)} ${f1(R)},-${f1(R*0.3)}" stroke="#000" stroke-opacity=".25" stroke-width="2" fill="none"/></g>`;}
+    return {svg:s,x:hx,y:hy,ux,uy};}
+  o+=`<g class="av-body"><g ${fx?`filter="url(#${p}ink)"`:""}>`;
+  // --- jas/cape achter het lichaam ---
+  const coat=stage>=4||L.outfit==="mantel"||(stage>=2&&L.outfit==="jack");
+  if(coat){const cc=stage>=4?el.d:L.outfit==="mantel"?ocS:shade(oc,-.2);
+    if(act){const tx=Rs[0]+70+12*(stage-4),by=ground-18;
+      const pts=[P(Ls[0]+4,Ls[1]-2),P(Ls[0]-16,wc[1]),P(Ls[0]-20,by-6),P(Ls[0]-4,by-18),P(wc[0]-6,by+2),P(wc[0]+18,by-20),P(Rs[0]+18,by-4),P(Rs[0]+40,by-34),P(tx,by-38),P(tx-10,wc[1]+10),P(tx+8,wc[1]-14),P(Rs[0]+34,shY+18),P(Rs[0]+2,Rs[1]-2)];
+      o+=`<path d="${crPath(pts,true)}" fill="${cc}" stroke="${OL}" stroke-width="2" stroke-linejoin="round"/>`;
+      o+=`<path d="M${f1(Rs[0]+20)},${f1(shY+30)} Q${f1(Rs[0]+50)},${f1(wc[1])} ${f1(tx-6)},${f1(by-36)} M${f1(Ls[0]-8)},${f1(wc[1]+10)} Q${f1(Ls[0]-12)},${f1(by-40)} ${f1(Ls[0]-6)},${f1(by-20)}" stroke="${shade(cc,-.45)}" stroke-width="2" fill="none"/>`;
+      if(fx)o+=`<path d="${crPath([P(Ls[0]-20,by-6),P(Ls[0]-4,by-18),P(wc[0]-6,by+2),P(wc[0]+18,by-20),P(Rs[0]+18,by-4),P(Rs[0]+40,by-34),P(tx,by-38)],false)}" stroke="${el.c}" stroke-width="1.8" fill="none" opacity=".9"/>`;
+      if(stage>=5&&fx)for(let i=0;i<6;i++){const x=Rs[0]+40+r()*50,y=by-60+r()*60;o+=`<path class="av-rise slow" style="animation-delay:${f1(r()*3)}s" d="M${f1(x)},${f1(y)} l6,-3 l4,4 l-7,2 Z" fill="${cc}" stroke="${el.c}" stroke-width=".7"/>`;}
+    }else{const len=stage>=4?ground-14:L.outfit==="mantel"?waistY+60+18*t:waistY+42+10*t;
+      o+=`<path d="M${f1(Ls[0]+2)},${f1(Ls[1]+2)} C${f1(Ls[0]-14)},${f1(shY+60)} ${f1(Ls[0]-18)},${f1(len-20)} ${f1(Ls[0]-22)},${f1(len)} L${f1(cx-6)},${f1(len-8)} L${f1(cx+6)},${f1(len-8)} L${f1(Rs[0]+22)},${f1(len)} C${f1(Rs[0]+18)},${f1(len-20)} ${f1(Rs[0]+14)},${f1(shY+60)} ${f1(Rs[0]-2)},${f1(Rs[1]+2)} Z" fill="${cc}" stroke="${OL}" stroke-width="2" stroke-linejoin="round"/>`;
+      o+=`<path d="M${f1(Ls[0]-6)},${f1(waistY)} Q${f1(Ls[0]-10)},${f1(len-30)} ${f1(Ls[0]-14)},${f1(len-6)} M${f1(Rs[0]+6)},${f1(waistY)} Q${f1(Rs[0]+10)},${f1(len-30)} ${f1(Rs[0]+14)},${f1(len-6)}" stroke="${shade(cc,-.45)}" stroke-width="1.6" fill="none"/>`;
+      if(stage>=3)o+=`<path d="M${f1(Ls[0]-22)},${f1(len)} L${f1(cx-6)},${f1(len-8)} M${f1(cx+6)},${f1(len-8)} L${f1(Rs[0]+22)},${f1(len)}" stroke="${el.c}" stroke-width="1.6"/>`;}
+  }
+  if(E==="schaduw"&&stage>=3){const sx=Rs[0]-4,sy=Rs[1]-4,ex=act?70:0;o+=`<path d="M${f1(sx)},${f1(sy)} C${f1(sx+30+ex*0.3)},${f1(sy+4)} ${f1(sx+52+ex*0.6)},${f1(sy-12)} ${f1(sx+76+ex)},${f1(sy+2)} L${f1(sx+62+ex)},${f1(sy+9)} L${f1(sx+72+ex)},${f1(sy+19)} C${f1(sx+46+ex*0.6)},${f1(sy+13)} ${f1(sx+24)},${f1(sy+21)} ${f1(sx-6)},${f1(sy+12)} Z" fill="#221230" stroke="${OL}" stroke-width="1.8"/>`;}
+  // linten hoofdband (D-C) + achterhaar
+  if(false)o+=`<g transform="${headT}"><path d="M26,-14 C44,-16 56,-6 70,2 L60,8 C52,0 42,-6 26,-6 Z M26,-12 C44,-6 52,8 58,24 L49,23 C45,11 38,0 26,-4 Z" fill="${shade(el.c,-.12)}" stroke="${OL}" stroke-width="${f1(1.8/HS)}"/></g>`;
+  const lift=stage>=3?1+0.06*(stage-2)+(E==="storm"?0.08:0):1;
+  o+=`<g transform="${headT}"><g transform="scale(1 ${lift.toFixed(2)})"><path d="${HAIR[L.hair].back}" fill="url(#${p}hg)" stroke="${OL}" stroke-width="${f1(2/HS)}" stroke-linejoin="round"/>${L.hair==="knot"?`<rect x="-9" y="-39" width="18" height="6" rx="1" fill="${el.c}" stroke="${OL}" stroke-width="${f1(1.4/HS)}"/>`:""}</g></g>`;
+  if(stage>=1){const big=stage>=3,bw=sw*2+aw*(big?2.6:1.6),bh=torsoH*(big?0.95:0.62),bx=nb[0]-bw/2+(act?-6:0),by=shY-(big?30:14),bc=shade(el.c,-.38);
+    o+=`<rect x="${f1(bx)}" y="${f1(by)}" width="${f1(bw)}" height="${f1(bh)}" rx="${f1(bw*0.22)}" fill="${bc}" stroke="${OL}" stroke-width="1.9"/><path d="M${f1(bx+6)},${f1(by+bh*0.35)} L${f1(bx+bw-6)},${f1(by+bh*0.35)}" stroke="${shade(bc,-.35)}" stroke-width="1.4"/>`;
+    if(big)o+=`<rect x="${f1(bx+bw*0.12)}" y="${f1(by-9)}" width="${f1(bw*0.76)}" height="11" rx="5.5" fill="${shade(el.c2,-.35)}" stroke="${OL}" stroke-width="1.6"/>`;}
+  // --- benen ---
+  const LW=[lw*0.7,lw*0.66,lw*0.5,lw*0.52,lw*0.42];
+  o+=`<path d="M${f1(wc[0]-hipW-2)},${f1(wc[1]-2)} L${f1(wc[0]+hipW+2)},${f1(wc[1]-2)} L${f1(wc[0]+hipW+4)},${f1(wc[1]+16)} L${f1(wc[0])},${f1(wc[1]+20)} L${f1(wc[0]-hipW-4)},${f1(wc[1]+16)} Z" fill="${pants}" stroke="${OL}" stroke-width="1.8" stroke-linejoin="round"/>`;
+  [legL,legR].forEach((J,i)=>{const d=i?1:-1;o+=limbV(J,LW,pants,{tone:true,fold:true,rim:i===0});
+    const ax=J[2][0],ay=J[2][1];
+    o+=`<path d="M${f1(ax-lw*0.5)},${f1(ay-14)} L${f1(ax+lw*0.5)},${f1(ay-12)} M${f1(ax-lw*0.5)},${f1(ay-8)} L${f1(ax+lw*0.5)},${f1(ay-6)}" stroke="${stage>=1?el.c:"#e7dfcc"}" stroke-width="2.4"/>`;
+    const toe=act?(i?16:-14):d*5;
+    o+=`<path d="M${f1(ax-lw*0.48)},${f1(ay-4)} L${f1(ax+lw*0.48)},${f1(ay-4)} L${f1(ax+lw*0.5+(toe>0?toe:0))},${ground} L${f1(ax-lw*0.5+(toe<0?toe:0))},${ground} Z" fill="${boots}" stroke="${OL}" stroke-width="1.9" stroke-linejoin="round"/><path d="M${f1(ax-lw*0.3)},${f1(ay+1)} l${f1(lw*0.4)},0" stroke="#fff" stroke-opacity=".25" stroke-width="1.3"/>`;
+    if(E==="vuur"&&stage>=3)o+=`<path d="M${f1(ax-lw*0.6)},${f1(ay-16)} l3,-8 l3,6 l3,-10 l3,9 l3,-7 l2,10" fill="${el.c}" stroke="${OL}" stroke-width="1.1"/>`;
+    if(E==="vorst"&&stage>=4)o+=`<path d="M${f1(ax-lw*0.5)},${f1(ay-3)} l${f1(lw*0.3)},-12 l${f1(lw*0.35)},10 l${f1(lw*0.3)},-8 l${f1(lw*0.2)},10" fill="url(#${p}ice)" stroke="${el.c2}" stroke-width="1"/>`;
+  });
+  // --- romp ---
+  const latL=P(lerp(Ls,P(wc[0]-hipW,wc[1]),0.55)[0]+5,Ls[1]+torsoH*0.62),latR=P(lerp(Rs,P(wc[0]+hipW,wc[1]),0.55)[0]-5,Rs[1]+torsoH*0.62);
+  const TP=[P(nb[0]-6,nb[1]-4),P(Ls[0]+7,Ls[1]-6),P(Ls[0]-aw*0.6,Ls[1]+3),P(Ls[0]-aw*0.3,Ls[1]+torsoH*0.3),latL,P(wc[0]-hipW-1,wc[1]),P(wc[0]+hipW+1,wc[1]),latR,P(Rs[0]+aw*0.3,Rs[1]+torsoH*0.3),P(Rs[0]+aw*0.6,Rs[1]+3),P(Rs[0]-7,Rs[1]-6),P(nb[0]+6,nb[1]-4)];
+  const bodyCol=L.outfit==="vest"?shade(oc,.5):oc;
+  o+=`<path d="${crPath(TP,true)}" fill="${bodyCol}" stroke="${OL}" stroke-width="1.9" stroke-linejoin="round"/>`;
+  const sternum=P(nb[0]+(wc[0]-nb[0])*0.5,nb[1]+torsoH*0.5);
+  if(L.outfit==="vest"){
+    o+=`<path d="M${f1(nb[0]-7)},${f1(nb[1]-3)} Q${f1(nb[0])},${f1(nb[1]+9)} ${f1(nb[0]+7)},${f1(nb[1]-3)} Z" fill="${skin}" stroke="${OL}" stroke-width="1.3"/>`;
+    o+=`<path d="${crPath([P(Ls[0]+6,Ls[1]-4),P(Ls[0]-aw*0.5,Ls[1]+4),latL,P(wc[0]-hipW-1,wc[1]),P(wc[0]-7,wc[1]),P(nb[0]-8,nb[1]+torsoH*0.4)],true)}" fill="${oc}" stroke="${OL}" stroke-width="1.7"/>`;
+    o+=`<path d="${crPath([P(Rs[0]-6,Rs[1]-4),P(Rs[0]+aw*0.5,Rs[1]+4),latR,P(wc[0]+hipW+1,wc[1]),P(wc[0]+7,wc[1]),P(nb[0]+8,nb[1]+torsoH*0.4)],true)}" fill="${oc}" stroke="${OL}" stroke-width="1.7"/>`;
+  }else{
+    o+=`<path d="M${f1(nb[0]-8)},${f1(nb[1]-4)} L${f1(sternum[0])},${f1(sternum[1])} L${f1(nb[0]+8)},${f1(nb[1]-4)} Z" fill="${L.outfit==="mantel"?shade(oc,.25):"#ddd8e4"}" stroke="${OL}" stroke-width="1.5"/>`;
+    o+=`<path d="M${f1(sternum[0])},${f1(sternum[1])} L${f1(wc[0])},${f1(wc[1]-8)}" stroke="${OL}" stroke-width="1.3"/><path d="M${f1(sternum[0]+2)},${f1(sternum[1]+4)} L${f1(wc[0]+2)},${f1(wc[1]-10)}" stroke="${el.c}" stroke-width=".9" stroke-dasharray="2 2"/>`;
+    o+=`<path d="M${f1(Ls[0]+3)},${f1(Ls[1]-3)} L${f1(nb[0]-10)},${f1(nb[1]-6)} L${f1(nb[0]-3)},${f1(nb[1]+14)} Z M${f1(Rs[0]-3)},${f1(Rs[1]-3)} L${f1(nb[0]+10)},${f1(nb[1]-6)} L${f1(nb[0]+3)},${f1(nb[1]+14)} Z" fill="${shade(oc,.16)}" stroke="${OL}" stroke-width="1.6" stroke-linejoin="round"/>`;
+    o+=`<path d="M${f1(latL[0]+4)},${f1(wc[1]-14)} q5,4 9,1 M${f1(latR[0]-14)},${f1(wc[1]-16)} q4,5 9,2 M${f1(Ls[0]+6)},${f1(Ls[1]+torsoH*0.35)} q4,3 3,9" stroke="${OL}" stroke-width="1.1" fill="none" stroke-linecap="round"/>`;
+    if(stage>=2)o+=sym(E,(Ls[0]+nb[0])/2,nb[1]+torsoH*0.3,3.8+t,el.c);
+  }
+  const shT=[P(Rs[0]-7,Rs[1]-6),P(Rs[0]+aw*0.6,Rs[1]+3),P(Rs[0]+aw*0.3,Rs[1]+torsoH*0.3),latR,P(wc[0]+hipW+1,wc[1]),P(wc[0]+hipW*0.25,wc[1]),P(lerp(nb,Rs,.35)[0],nb[1]+torsoH*0.35)];
+  o+=`<path d="${crPath(shT,true)}" fill="#000" opacity=".26"/>${mini?"":`<path d="${crPath(shT,true)}" fill="url(#${p}tone)"/>`}`;
+  if(showRim){const rp=crPath([P(Ls[0]+7,Ls[1]-6),P(Ls[0]-aw*0.6,Ls[1]+3),P(Ls[0]-aw*0.3,Ls[1]+torsoH*0.3),latL,P(wc[0]-hipW-1,wc[1])],false);o+=`<path d="${rp}" stroke="${rimC}" stroke-width="1.4" fill="none" opacity=".9"/>`;if(fx)o+=`<path d="${rp}" stroke="${el.c}" stroke-width="4" fill="none" opacity=".45" filter="url(#${p}gl)"/>`;}
+  if(stage<=1)o+=`<path d="M${f1(nb[0]-6)},${f1(nb[1]-3)} Q${f1(nb[0])},${f1(nb[1]+10)} ${f1(nb[0]+6)},${f1(nb[1]-3)}" stroke="#d8cfa8" stroke-width="1.1" fill="none"/>`+sym(E,nb[0],nb[1]+12,3.2,el.c);
+  // sjerp
+  const sY=wc[1]-5;
+  o+=`<path d="M${f1(wc[0]-hipW-4)},${f1(sY-5)} L${f1(wc[0]+hipW+4)},${f1(sY-5)} L${f1(wc[0]+hipW+4)},${f1(sY+5)} L${f1(wc[0]-hipW-4)},${f1(sY+5)} Z" fill="${sash}" stroke="${OL}" stroke-width="1.8"/><path d="M${f1(wc[0]-hipW)},${f1(sY)} L${f1(wc[0]+hipW)},${f1(sY)}" stroke="${shade(sash,-.25)}" stroke-width="1.1"/>`;
+  if(stage>=2){const kx=wc[0]+hipW-2,ky=sY+3,fl2=act?14:0;o+=`<path d="M${f1(kx)},${f1(ky)} C${f1(kx+6+fl2)},${f1(ky+12)} ${f1(kx+4+fl2*1.4)},${f1(ky+20)} ${f1(kx+10+fl2*2)},${f1(ky+30-fl2*0.6)} L${f1(kx+17+fl2*2)},${f1(ky+24-fl2*0.6)} C${f1(kx+12+fl2)},${f1(ky+16)} ${f1(kx+12)},${f1(ky+8)} ${f1(kx+6)},${f1(ky-2)} Z" fill="${shade(sash,-.15)}" stroke="${OL}" stroke-width="1.6"/>`;}
+  // rugzakbanden (D+)
+  if(stage>=1){[Ls,Rs].forEach((S0,i)=>{const d=i?1:-1;o+=`<path d="M${f1(S0[0]-d*3)},${f1(S0[1]-4)} C${f1(S0[0]-d*6)},${f1(S0[1]+torsoH*0.3)} ${f1(S0[0]-d*9)},${f1(S0[1]+torsoH*0.55)} ${f1(S0[0]-d*7)},${f1(S0[1]+torsoH*0.72)}" stroke="${OL}" stroke-width="5.6" fill="none" stroke-linecap="round"/><path d="M${f1(S0[0]-d*3)},${f1(S0[1]-4)} C${f1(S0[0]-d*6)},${f1(S0[1]+torsoH*0.3)} ${f1(S0[0]-d*9)},${f1(S0[1]+torsoH*0.55)} ${f1(S0[0]-d*7)},${f1(S0[1]+torsoH*0.72)}" stroke="${shade(el.c,-.25)}" stroke-width="3.4" fill="none" stroke-linecap="round"/>`;});
+    if(stage>=3)o+=`<path d="M${f1(Ls[0]+2)},${f1(Ls[1]+torsoH*0.36)} L${f1(Rs[0]-2)},${f1(Rs[1]+torsoH*0.36)}" stroke="${OL}" stroke-width="2.6"/><path d="M${f1(Ls[0]+2)},${f1(Ls[1]+torsoH*0.36)} L${f1(Rs[0]-2)},${f1(Rs[1]+torsoH*0.36)}" stroke="${el.c}" stroke-width="1.4"/>`;}
+  // --- wapen (A+), achter de rechterhand ---
+  const sleeve=L.outfit==="vest"?skin:oc, fore=(L.outfit==="jack"&&stage<3)||L.outfit==="mantel"?oc:skin;
+  const AW=[aw*0.6+str*0.03,aw*0.64+str*0.04,aw*0.46,aw*0.5,aw*0.36];
+  const AWs=AW.map((w,i)=>i<3&&sleeve!==skin?w*1.12:w);
+  function weapon(h){if(!act)return"";{const gx=h.x+36,gy=ground-2;return `<line x1="${f1(h.x-2)}" y1="${f1(h.y-12)}" x2="${f1(gx)}" y2="${f1(gy)}" stroke="${OL}" stroke-width="4.4" stroke-linecap="round"/><line x1="${f1(h.x-2)}" y1="${f1(h.y-12)}" x2="${f1(gx)}" y2="${f1(gy)}" stroke="#c9d0d8" stroke-width="2.4" stroke-linecap="round"/><line x1="${f1(h.x-3)}" y1="${f1(h.y-14)}" x2="${f1(h.x+3)}" y2="${f1(h.y+6)}" stroke="${OL}" stroke-width="6" stroke-linecap="round"/><line x1="${f1(h.x-3)}" y1="${f1(h.y-14)}" x2="${f1(h.x+3)}" y2="${f1(h.y+6)}" stroke="${shade(el.c,-.3)}" stroke-width="4" stroke-linecap="round"/><ellipse cx="${f1(gx-5)}" cy="${f1(gy-10)}" rx="5" ry="1.8" fill="${OL}"/>`;}const ux=0.6,uy=0.8,big=stage>=5?1.15:1,s=[];
+    const at=(dd)=>P(h.x+ux*dd,h.y+uy*dd);
+    if(E==="storm"){const a=at(-110*big),b=at(72*big),tp=at(100*big);
+      s.push(`<line x1="${f1(a[0])}" y1="${f1(a[1])}" x2="${f1(b[0])}" y2="${f1(b[1])}" stroke="${OL}" stroke-width="6.5" stroke-linecap="round"/><line x1="${f1(a[0])}" y1="${f1(a[1])}" x2="${f1(b[0])}" y2="${f1(b[1])}" stroke="#3a4a66" stroke-width="3.6" stroke-linecap="round"/><line x1="${f1(a[0])}" y1="${f1(a[1])}" x2="${f1(b[0])}" y2="${f1(b[1])}" stroke="${el.c}" stroke-width="1" stroke-dasharray="6 5"/>`);
+      s.push(`<path d="M${f1(b[0]-uy*7)},${f1(b[1]+ux*7)} L${f1(tp[0])},${f1(tp[1])} L${f1(b[0]+uy*7)},${f1(b[1]-ux*7)} L${f1(b[0]+uy*2-ux*4)},${f1(b[1]-ux*2-uy*4)} L${f1(b[0]-uy*2-ux*4)},${f1(b[1]+ux*2-uy*4)} Z" fill="${el.c2}" stroke="${OL}" stroke-width="1.6"/>`);
+      if(fx)s.push(`<path class="av-spark" d="${bolt(tp[0],tp[1]-20,40,r)}" stroke="${el.c2}" stroke-width="1.6" fill="none"/><line x1="${f1(b[0])}" y1="${f1(b[1])}" x2="${f1(tp[0])}" y2="${f1(tp[1])}" stroke="${el.c}" stroke-width="7" opacity=".5" filter="url(#${p}gl)"/>`);}
+    if(E==="schaduw"){const a=at(-120*big),b=at(50*big);
+      s.push(`<line x1="${f1(a[0])}" y1="${f1(a[1])}" x2="${f1(b[0])}" y2="${f1(b[1])}" stroke="${OL}" stroke-width="7" stroke-linecap="round"/><line x1="${f1(a[0])}" y1="${f1(a[1])}" x2="${f1(b[0])}" y2="${f1(b[1])}" stroke="#2b1d3c" stroke-width="4" stroke-linecap="round"/>`);
+      s.push(`<path d="M${f1(a[0]+2)},${f1(a[1]+4)} C${f1(a[0]-30)},${f1(a[1]-14)} ${f1(a[0]-62*big)},${f1(a[1]+8)} ${f1(a[0]-74*big)},${f1(a[1]+44*big)} C${f1(a[0]-50*big)},${f1(a[1]+14)} ${f1(a[0]-24)},${f1(a[1]+6)} ${f1(a[0]+4)},${f1(a[1]+14)} Z" fill="#14101c" stroke="${el.c}" stroke-width="1.6"/><path d="M${f1(a[0]-8)},${f1(a[1]+6)} C${f1(a[0]-34)},${f1(a[1]-2)} ${f1(a[0]-56*big)},${f1(a[1]+14)} ${f1(a[0]-68*big)},${f1(a[1]+38*big)}" stroke="${el.c2}" stroke-width="1" fill="none" opacity=".8"/>`);
+      if(fx)s.push(`<path d="M${f1(a[0]-8)},${f1(a[1]+6)} C${f1(a[0]-34)},${f1(a[1]-2)} ${f1(a[0]-56*big)},${f1(a[1]+14)} ${f1(a[0]-68*big)},${f1(a[1]+38*big)}" stroke="${el.c}" stroke-width="6" fill="none" opacity=".45" filter="url(#${p}gl)"/>`);}
+    if(E==="vorst"){const g0=at(-26),b0=at(6),tp=at(108*big),wv=9*big;const nx=-uy,ny=ux;
+      s.push(`<line x1="${f1(g0[0])}" y1="${f1(g0[1])}" x2="${f1(b0[0])}" y2="${f1(b0[1])}" stroke="${OL}" stroke-width="6" stroke-linecap="round"/><line x1="${f1(g0[0])}" y1="${f1(g0[1])}" x2="${f1(b0[0])}" y2="${f1(b0[1])}" stroke="#3b4c66" stroke-width="3.4"/>`);
+      const c1=at(10);s.push(`<path d="M${f1(c1[0]+nx*wv)},${f1(c1[1]+ny*wv)} L${f1(tp[0]+nx*2)},${f1(tp[1]+ny*2)} L${f1(tp[0]+ux*10)},${f1(tp[1]+uy*10)} L${f1(tp[0]-nx*3)},${f1(tp[1]-ny*3)} L${f1(c1[0]-nx*wv)},${f1(c1[1]-ny*wv)} Z" fill="url(#${p}ice)" stroke="${el.c2}" stroke-width="1.5"/><path d="M${f1(c1[0])},${f1(c1[1])} L${f1(tp[0])},${f1(tp[1])}" stroke="#fff" stroke-width="1" opacity=".8"/>`);
+      s.push(`<path d="M${f1(b0[0]+nx*16)},${f1(b0[1]+ny*16)} L${f1(b0[0]-nx*16)},${f1(b0[1]-ny*16)}" stroke="${OL}" stroke-width="6" stroke-linecap="round"/><path d="M${f1(b0[0]+nx*15)},${f1(b0[1]+ny*15)} L${f1(b0[0]-nx*15)},${f1(b0[1]-ny*15)}" stroke="${el.c}" stroke-width="3" stroke-linecap="round"/>`);
+      if(fx)s.push(`<path d="M${f1(c1[0])},${f1(c1[1])} L${f1(tp[0])},${f1(tp[1])}" stroke="${el.c}" stroke-width="10" opacity=".35" filter="url(#${p}gl)"/>`);}
+    if(E==="natuur"){const a=at(-118*big),b=at(52*big);
+      s.push(`<path d="M${f1(a[0])},${f1(a[1])} Q${f1(h.x-20)},${f1(h.y-50)} ${f1(b[0])},${f1(b[1])}" stroke="${OL}" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M${f1(a[0])},${f1(a[1])} Q${f1(h.x-20)},${f1(h.y-50)} ${f1(b[0])},${f1(b[1])}" stroke="#6b4426" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M${f1(a[0]+4)},${f1(a[1]+10)} q-8,10 2,18 q8,8 -2,18" stroke="#2f7a3c" stroke-width="2" fill="none"/>`);
+      s.push(`<circle cx="${f1(a[0])}" cy="${f1(a[1]-6)}" r="${f1(8*big)}" fill="${el.c2}" stroke="${OL}" stroke-width="1.6"/>${fx?`<circle cx="${f1(a[0])}" cy="${f1(a[1]-6)}" r="${f1(14*big)}" fill="${el.c}" opacity=".5" filter="url(#${p}gl)"/>`:""}`+[[-12,-4,-40],[10,-6,40],[0,-18,0]].map(([dx,dy,ang])=>`<path d="${SYM.natuur}" transform="translate(${f1(a[0]+dx)} ${f1(a[1]+dy)}) rotate(${ang}) scale(4 6)" fill="${el.c}" stroke="${OL}" stroke-width=".2"/>`).join(""));}
+    return s.join("");}
+  // armen + handen
+  const hands=[];
+  [[armL,handL,-1],[armR,handR,1]].forEach(([J,ht,d])=>{
+    const cut=J.length&&lerp(J[0],J[1],1);
+    o+=limbV([J[0],lerp(J[0],J[1],.5),J[1]],[AWs[0],AWs[1],AWs[1],AWs[2],AWs[2]],sleeve,{tone:sleeve!==skin,fold:sleeve!==skin,rim:d<0});
+    o+=limbV([J[1],lerp(J[1],J[2],.5),J[2]],[AWs[2],AW[3],AW[3],AW[4],AW[4]],fore,{rim:d<0});
+    if(L.outfit==="jack"&&!mini)o+=`<line x1="${f1(J[0][0]+d*2)}" y1="${f1(J[0][1]+2)}" x2="${f1(J[1][0]+d*2)}" y2="${f1(J[1][1])}" stroke="${el.c}" stroke-width="1.5"/>`;
+    const w1=lerp(J[1],J[2],.7),w2=lerp(J[1],J[2],.92);
+    if(L.outfit==="vest"||stage>=1)o+=`<line x1="${f1(w1[0])}" y1="${f1(w1[1])}" x2="${f1(w2[0])}" y2="${f1(w2[1])}" stroke="${OL}" stroke-width="${f1(AW[4]*2+3.4)}"/><line x1="${f1(w1[0])}" y1="${f1(w1[1])}" x2="${f1(w2[0])}" y2="${f1(w2[1])}" stroke="${stage>=1?el.c:"#efe6d4"}" stroke-width="${f1(AW[4]*2+0.8)}"/>`;
+    if(E==="vuur"&&stage>=4){const g1=lerp(J[1],J[2],.45);o+=`<line x1="${f1(g1[0])}" y1="${f1(g1[1])}" x2="${f1(J[2][0])}" y2="${f1(J[2][1])}" stroke="${OL}" stroke-width="${f1(AW[3]*2+6)}" stroke-linecap="round"/><line x1="${f1(g1[0])}" y1="${f1(g1[1])}" x2="${f1(J[2][0])}" y2="${f1(J[2][1])}" stroke="#3a2a2a" stroke-width="${f1(AW[3]*2+3)}" stroke-linecap="round"/><line x1="${f1(g1[0])}" y1="${f1(g1[1])}" x2="${f1(J[2][0])}" y2="${f1(J[2][1])}" stroke="${el.c}" stroke-width="1.6" stroke-dasharray="3 3"/>`;}
+    if(stage>=4&&fore===skin){const e=J[1],mk=`M${f1(e[0]+d)},${f1(e[1]+5)} l${d*2},6 l${-d*3},4 l${d*2},6`;o+=`${fx?`<path d="${mk}" stroke="${el.c2}" stroke-width="3" fill="none" filter="url(#${p}gl)"/>`:""}<path d="${mk}" stroke="${el.c}" stroke-width="1.2" fill="none"/>`;}
+    if(E==="natuur"&&stage>=3&&d<0)o+=`<path d="${crPath([J[0],lerp(J[0],J[1],.5).map((v,i)=>v+(i?0:-6)),J[1],lerp(J[1],J[2],.6)],false)}" stroke="#2f7a3c" stroke-width="2" fill="none"/>`;
+    const H=handV(J,ht,E==="vuur"&&stage>=4?"#3a2a2a":skin);
+    if(d>0)o+=weapon(H);
+    o+=H.svg;hands.push(H);
+  });
+  // energie rond de vrije hand (A+) of beide vuisten (B)
+  if(false){const list=act?[hands[0]]:hands;list.forEach(h=>{const R=act?16+6*(stage-4):9;
+    if(E==="vuur")o+=`<path class="av-flick" d="M${f1(h.x-R)},${f1(h.y+4)} Q${f1(h.x-R-2)},${f1(h.y-R)} ${f1(h.x-2)},${f1(h.y-R*1.9)} Q${f1(h.x+2)},${f1(h.y-R)} ${f1(h.x+5)},${f1(h.y-R*1.5)} Q${f1(h.x+R+4)},${f1(h.y-R*0.5)} ${f1(h.x+R)},${f1(h.y+4)} Z" fill="${el.c}" opacity=".8"/><circle cx="${f1(h.x)}" cy="${f1(h.y)}" r="${f1(R*0.5)}" fill="${el.c2}" opacity=".7" filter="url(#${p}gl)"/>`;
+    else if(E==="storm")o+=`<circle cx="${f1(h.x)}" cy="${f1(h.y)}" r="${f1(R*0.8)}" fill="${el.c}" opacity=".45" filter="url(#${p}gl)"/><path class="av-spark" d="${bolt(h.x-R*0.6,h.y-R,R*2,r)} ${bolt(h.x+R*0.6,h.y-R,R*2,r)}" stroke="${el.c2}" stroke-width="1.4" fill="none"/>`;
+    else if(E==="schaduw")o+=`<circle cx="${f1(h.x)}" cy="${f1(h.y)}" r="${f1(R+4)}" fill="${el.d}" opacity=".85" filter="url(#${p}sm)"/><circle cx="${f1(h.x)}" cy="${f1(h.y)}" r="${f1(R*0.35)}" fill="${el.c2}" opacity=".8" filter="url(#${p}gl)"/>`;
+    else if(E==="vorst")o+=`<path d="M${f1(h.x)},${f1(h.y-R*1.3)} L${f1(h.x+R*0.4)},${f1(h.y-R*0.2)} L${f1(h.x+R*1.2)},${f1(h.y)} L${f1(h.x+R*0.4)},${f1(h.y+R*0.3)} L${f1(h.x)},${f1(h.y+R)} L${f1(h.x-R*0.4)},${f1(h.y+R*0.3)} L${f1(h.x-R*1.2)},${f1(h.y)} L${f1(h.x-R*0.4)},${f1(h.y-R*0.2)} Z" fill="url(#${p}ice)" stroke="${el.c2}" stroke-width="1" opacity=".9"/>`;
+    else o+=`<circle cx="${f1(h.x)}" cy="${f1(h.y)}" r="${f1(R*0.9)}" fill="${el.c}" opacity=".35" filter="url(#${p}gl)"/>`+[0,1,2].map(i=>`<path class="av-bob" style="animation-delay:${i*0.4}s" d="${SYM.natuur}" transform="translate(${f1(h.x+Math.cos(i*2.1)*R)} ${f1(h.y+Math.sin(i*2.1)*R)}) rotate(${i*120}) scale(3.4)" fill="${el.c2}"/>`).join("");});}
+  if(stage>=5){const h=hands[0],tx=h.x-4,ty=h.y-78;o+=`<line x1="${f1(h.x)}" y1="${f1(h.y+8)}" x2="${f1(tx)}" y2="${f1(ty)}" stroke="${OL}" stroke-width="3.6" stroke-linecap="round"/><line x1="${f1(h.x)}" y1="${f1(h.y+8)}" x2="${f1(tx)}" y2="${f1(ty)}" stroke="#d8dee6" stroke-width="1.8"/><path class="av-flag" d="M${f1(tx)},${f1(ty+2)} Q${f1(tx+20)},${f1(ty-4)} ${f1(tx+40)},${f1(ty+6)} Q${f1(tx+30)},${f1(ty+14)} ${f1(tx+40)},${f1(ty+24)} Q${f1(tx+20)},${f1(ty+16)} ${f1(tx)},${f1(ty+22)} Z" fill="${el.c}" stroke="${OL}" stroke-width="1.6"/>`+sym("berg",tx+18,ty+12,5.2,el.c2);}
+  // nek
+  const chin=P(hX,headCY+hr*0.95);
+  o+=`<path d="M${f1(chin[0]-hr*0.22)},${f1(chin[1]-6)} L${f1(nb[0]-hr*0.28)},${f1(nb[1]+1)} L${f1(nb[0]+hr*0.28)},${f1(nb[1]+1)} L${f1(chin[0]+hr*0.22)},${f1(chin[1]-6)} Z" fill="${skinS}" stroke="${OL}" stroke-width="1.6"/><path d="M${f1(chin[0]-hr*0.2)},${f1(chin[1]-2)} L${f1(chin[0]+hr*0.22)},${f1(chin[1]+2)} L${f1(chin[0]+hr*0.22)},${f1(chin[1]-6)} Z" fill="#000" opacity=".3"/>`;
+  /* ---------- HOOFD ---------- */
+  const ey=4, ew=7.8, eh=4.2+0.8*k, jaw=false;
+  const face=jaw?"M-30,-6 C-31,-28 -16,-36 0,-36 C16,-36 31,-28 30,-6 C30,6 27,15 19,25 L3,33.5 Q0,34.5 -3,33.5 L-19,25 C-27,15 -30,6 -30,-6 Z"
+               :"M-30,-6 C-31,-28 -16,-36 0,-36 C16,-36 31,-28 30,-6 C30,10 20,28 0,31 C-20,28 -30,10 -30,-6 Z";
+  o+=`<g transform="${headT}">`;
+  o+=`<path d="M-30,-2 C-37,-4 -37,10 -29,13 M30,-2 C37,-4 37,10 29,13" fill="${skin}" stroke="${OL}" stroke-width="${f1(2.2/HS)}"/><path d="M-32,2 q2,3 0,6 M32,2 q-2,3 0,6" stroke="${skinS}" stroke-width="${sk}" fill="none"/>`;
+  o+=`<clipPath id="${p}fc"><path d="${face}"/></clipPath>`;
+  o+=`<path d="${face}" fill="${skin}" stroke="${OL}" stroke-width="${f1(1.8/HS)}" stroke-linejoin="round"/>`;
+  o+=`<g clip-path="url(#${p}fc)"><path d="M4,34 C14,22 20,10 22,-4 C24,-14 28,-18 32,-20 L36,40 Z" fill="#000" opacity=".3"/><path d="M-23,11 L-17,15 M23,11 L17,15" stroke="${skinS}" stroke-width="1.1"/><path d="M1,8 L4,15 L1,16 Z" fill="#000" opacity=".22"/>`+
+     `<path d="${HAIR[L.hair].front}" transform="translate(0 5)" fill="${shade(skin,-.32)}" opacity=".55"/></g>`;
+  if(stage>=2)o+=`<path d="M-30,-6 C-30,8 -25,18 -18,25" stroke="${el.c2}" stroke-width="${f1(1.5/HS)}" fill="none" opacity=".85"/>`;
+  if(false)o+=`<ellipse cx="-18" cy="15" rx="5.5" ry="2.6" fill="#ff7088" opacity=".35"/><ellipse cx="18" cy="15" rx="5.5" ry="2.6" fill="#ff7088" opacity=".35"/><path d="M-21,14 l2,2 M-18,14 l2,2 M15,14 l2,2 M18,14 l2,2" stroke="#e05070" stroke-width=".7" opacity=".6"/>`;
+  [-1,1].forEach(d=>{const x=d*12.5,tilt=-d*(1.4+1.6*t);
+    const white=`M${x-ew},${ey} C${x-ew},${f1(ey-eh+tilt)} ${x+ew},${f1(ey-eh-tilt)} ${x+ew},${ey} C${x+ew*0.9},${f1(ey+eh*0.85)} ${x-ew*0.9},${f1(ey+eh*0.85)} ${x-ew},${ey} Z`;
+    const cid=p+"e"+(d>0?"R":"L");
+    if(false)o+=`<ellipse cx="${x}" cy="${ey}" rx="${ew+4}" ry="${f1(eh+3)}" fill="${E==="schaduw"?el.c2:el.c}" opacity="${[0,0,0,.35,.5,.75][stage]}" filter="url(#${p}gl)"/>`;
+    o+=`<clipPath id="${cid}"><path d="${white}"/></clipPath><path d="${white}" fill="${stage>=5&&E==="schaduw"?"#1a0a22":"#fff"}"/>`;
+    o+=`<g clip-path="url(#${cid})"><ellipse cx="${x+d*0.8}" cy="${f1(ey+0.8)}" rx="${f1(ew*0.64)}" ry="${f1(eh*0.98)}" fill="url(#${p}ir)" stroke="${shade(L.eyes,-.6)}" stroke-width=".6"/>`+
+       `<ellipse cx="${x+d*0.8}" cy="${f1(ey+1)}" rx="${f1(ew*0.27)}" ry="${f1(eh*0.48)}" fill="#120a12"/>`+
+       `<path d="M${f1(x-ew)},${f1(ey-eh*0.9)} L${f1(x+ew)},${f1(ey-eh*0.9)} L${f1(x+ew)},${f1(ey-eh*0.2)} Q${x},${f1(ey-eh*0.05)} ${f1(x-ew)},${f1(ey-eh*0.2)} Z" fill="#000" opacity=".25"/>`+
+       `<circle cx="${f1(x-2.2+d*0.8)}" cy="${f1(ey-eh*0.28)}" r="${f1(1.1+0.3*k)}" fill="#fff"/><circle cx="${f1(x+2.2)}" cy="${f1(ey+eh*0.38)}" r=".9" fill="#fff" opacity=".85"/></g>`;
+    // bovenooglid als dikke inktwig met staartje
+    o+=`<path d="M${f1(x-ew-1.6)},${f1(ey+1)} C${f1(x-ew)},${f1(ey-eh-1.6+tilt)} ${f1(x+ew)},${f1(ey-eh-1.6-tilt)} ${f1(x+ew+2.6)},${f1(ey-0.6+d*0.4)} L${f1(x+ew+0.4)},${f1(ey-0.4)} C${f1(x+ew*0.7)},${f1(ey-eh+0.6-tilt)} ${f1(x-ew*0.7)},${f1(ey-eh+0.6+tilt)} ${f1(x-ew+0.6)},${f1(ey+0.6)} Z" fill="${OL}"/>`;
+    o+=`<path d="M${f1(x-ew*0.5)},${f1(ey+eh*0.86)} L${f1(x+ew*0.6)},${f1(ey+eh*0.8)}" stroke="${OL}" stroke-width="${f1(1/HS)}"/>`;
+    o+=`<path d="M${f1(x+d*ew)},${f1(ey-0.6)} l${f1(d*3.4)},-2.6 M${f1(x+d*(ew-2.6))},${f1(ey-eh+0.4)} l${f1(d*2.4)},-3" stroke="${OL}" stroke-width="1.3" stroke-linecap="round"/>`;
+    // wenkbrauw
+    o+=`<path d="M${d*4},${f1(ey-eh-3.5+k)} L${d*20},${f1(ey-eh-8.5-2*t+k)} L${d*20.5},${f1(ey-eh-6-2*t+k)} L${d*4.5},${f1(ey-eh-1+k)} Z" fill="${shade(L.hairCol,-.35)}" stroke="${OL}" stroke-width="${f1(0.8/HS)}"/>`;
+  });
+  if(L.bril!=="nee"){const lens=L.bril==="rond"?[-1,1].map(d=>`<circle cx="${d*12.5}" cy="${ey}" r="9.6"/>`).join(""):[-1,1].map(d=>`<rect x="${d*12.5-10}" y="${ey-7}" width="20" height="13.5" rx="3"/>`).join("");
+    o+=`<g fill="#ffffff" fill-opacity=".08" stroke="#2a2233" stroke-width="1.7">${lens}</g><path d="M-3,${ey-1} Q0,${ey-3} 3,${ey-1} M-22.5,${ey-1} L-30,${ey-3} M22.5,${ey-1} L30,${ey-3}" stroke="#2a2233" stroke-width="1.6" fill="none"/><path d="M-16,${ey-5} l3,-2 M9,${ey-5} l3,-2" stroke="#fff" stroke-opacity=".5" stroke-width="1"/>`;}
+  o+=`<path d="M1.5,${f1(10+k)} L-1.2,${f1(14.5+k)} L1.8,${f1(15.2+k)}" stroke="${skinS}" stroke-width="1.4" fill="none" stroke-linecap="round"/>`;
+  if(false)o+=`<path d="M-8,${f1(20-2*k)} Q0,${f1(28.5-2*k)} 8,${f1(20-2*k)} Q0,${f1(23-2*k)} -8,${f1(20-2*k)} Z" fill="#6e1626" stroke="${OL}" stroke-width="1.3"/><path d="M-6,${f1(20.8-2*k)} Q0,${f1(23.2-2*k)} 6,${f1(20.8-2*k)} L5,${f1(22.6-2*k)} Q0,${f1(24.4-2*k)} -5,${f1(22.6-2*k)} Z" fill="#fff"/><path d="M-3,${f1(25.6-2*k)} Q0,${f1(26.8-2*k)} 3,${f1(25.6-2*k)}" stroke="#e86a7a" stroke-width="1.4" fill="none"/>`;
+  else o+=`<path d="M-5.6,20.6 Q-2.6,19.4 0,20.2 Q2.6,19.4 5.6,20.6 Q0,24.6 -5.6,20.6 Z" fill="#b8566a" stroke="${OL}" stroke-width=".9"/><path d="M-5.2,20.7 Q0,21.8 5.2,20.7" stroke="${OL}" stroke-width=".8" fill="none"/><path d="M-1.6,22.6 Q0,23.2 1.8,22.6" stroke="#fff" stroke-opacity=".5" stroke-width=".7" fill="none"/>`;
+  if(false)o+=`<g transform="rotate(-18 18 13)"><rect x="12" y="10" width="13" height="5.2" rx="1.6" fill="#f4dcb8" stroke="${OL}" stroke-width="1"/><rect x="16.3" y="10" width="4.4" height="5.2" fill="#e8c99e"/><circle cx="14.2" cy="12.6" r=".5" fill="#b89a74"/><circle cx="23" cy="12.6" r=".5" fill="#b89a74"/></g>`;
+  if(stage>=4)o+=`<g>${[-1,1].map(d=>`<path d="M${d*33},13 l0,4" stroke="#d8c48a" stroke-width="1"/><path d="M${d*33},17 l-2.4,3.4 l2.4,3.4 l2.4,-3.4 Z" fill="${el.c}" stroke="${OL}" stroke-width=".8"/>`).join("")}</g>`;
+  if(false){const m2=MARK[E].replace(/(-?\d+(\.\d+)?),/g,(s,n)=>(-n)+",");
+    const fill=(E==="natuur"||E==="vorst")?el.c:"none";
+    o+=`${fx?`<path d="${MARK[E]} ${m2}" stroke="${el.c}" stroke-width="2.4" opacity=".5" fill="none" filter="url(#${p}gl)"/>`:""}<path d="${MARK[E]} ${m2}" stroke="${E==="schaduw"?el.c2:el.c}" stroke-width="1.3" fill="${fill}" fill-opacity=".85" stroke-linecap="round" stroke-linejoin="round" transform="translate(${E==="natuur"||E==="vorst"?0:0} 1)"/>`;}
+  // hoofdband (D-C)
+  if(stage===1||stage===2)o+=`<path d="M-31,-14 Q0,-22 31,-14 L31,-6 Q0,-14 -31,-6 Z" fill="${el.c}" stroke="${OL}" stroke-width="${f1(2/HS)}"/><path d="M-30,-10 Q0,-18 30,-10" stroke="${shade(el.c,-.3)}" stroke-width="${sk}" fill="none"/>`;
+  // voorhaar met strengen en glans
+  const fl=stage>=3?1+0.04*(stage-2)+(E==="storm"?0.06:0):1;
+  o+=`<g transform="scale(1 ${fl.toFixed(2)})"><path d="${HAIR[L.hair].front}" fill="url(#${p}hg)" stroke="${OL}" stroke-width="${f1(1.8/HS)}" stroke-linejoin="round"/>`;
+  o+=`<path d="${HAIR[L.hair].strands}" stroke="${hcD}" stroke-width="${f1(1.2/HS)}" fill="none" stroke-linecap="round"/>`;
+  o+=`<path d="M-22,-29 L-16,-33 L-12,-29 L-6,-34 L0,-29 L6,-34 L10,-30 L16,-32 L18,-28 L10,-26 L4,-29 L-2,-25 L-8,-29 L-14,-25 Z" fill="#fff" opacity="${stage>=5?.55:hc==="#eeeaf3"?.6:.28}"/>`;
+  if(false)o+=`<path d="${HAIR[L.hair].front}" fill="${el.c2}" opacity=".25" filter="url(#${p}gl)"/>`;
+  o+=`</g>`;
+  // eindbaas-kroon
+  if(stage>=5){
+    if(E==="vuur")o+=`<path class="av-flick" d="M-24,-36 Q-30,-58 -18,-70 Q-15,-55 -9,-52 Q-10,-74 2,-88 Q5,-66 11,-60 Q15,-76 24,-78 Q17,-58 24,-36 Z" fill="${el.c}" stroke="${el.c2}" stroke-width="${f1(1.4/HS)}" opacity=".95"/><path d="M-12,-40 Q-10,-56 0,-68 Q4,-52 12,-40 Z" fill="${el.c2}" opacity=".8"/>`;
+    if(E==="schaduw")o+=`<path d="M-20,-30 C-36,-48 -34,-68 -18,-82 C-24,-62 -18,-46 -9,-34 Z M20,-30 C36,-48 34,-68 18,-82 C24,-62 18,-46 9,-34 Z" fill="#1c0e2b" stroke="${OL}" stroke-width="${f1(2/HS)}"/><path d="M-24,-40 C-28,-54 -26,-66 -20,-74 M24,-40 C28,-54 26,-66 20,-74" stroke="${el.c}" stroke-width="${f1(1.4/HS)}" fill="none"/>`;
+    if(E==="storm")o+=`<g class="av-spark"><path d="M-26,-36 L-36,-58 L-26,-56 L-38,-84 M26,-36 L36,-58 L26,-56 L38,-84 M0,-42 L-5,-64 L5,-62 L0,-90" stroke="${el.c2}" stroke-width="${f1(2.4/HS)}" fill="none" stroke-linejoin="miter"/></g>${fx?`<path d="M-26,-36 L-36,-58 L-26,-56 L-38,-84 M26,-36 L36,-58 L26,-56 L38,-84 M0,-42 L-5,-64 L5,-62 L0,-90" stroke="${el.c}" stroke-width="${f1(5/HS)}" fill="none" opacity=".6" filter="url(#${p}gl)"/>`:""}`;
+    if(E==="vorst")o+=`<path d="M-20,-36 L-30,-68 L-12,-41 Z M-8,-40 L-6,-80 L4,-42 Z M8,-40 L18,-76 L14,-40 Z M20,-36 L32,-62 L14,-40 Z" fill="url(#${p}ice)" stroke="${el.c2}" stroke-width="${f1(1.4/HS)}"/>`;
+    if(E==="natuur")o+=`<path d="M-16,-34 C-26,-50 -36,-56 -46,-72 M-31,-53 C-40,-53 -46,-49 -51,-51 M-40,-62 C-42,-70 -40,-76 -36,-80 M16,-34 C26,-50 36,-56 46,-72 M31,-53 C40,-53 46,-49 51,-51 M40,-62 C42,-70 40,-76 36,-80" stroke="#5a3b22" stroke-width="${f1(3.4/HS)}" fill="none" stroke-linecap="round"/>`+
+      [[-46,-74,-30],[46,-74,30],[-51,-52,-80],[51,-52,80],[-36,-82,-10],[36,-82,10]].map(([x,y,a])=>`<path d="${SYM.natuur}" transform="translate(${x} ${y}) rotate(${a}) scale(5 6)" fill="${el.c}" stroke="${OL}" stroke-width=".2"/>`).join("");
+  }
+  o+=`</g></g></g>`; // hoofd, ink, body
+  /* ---------- DEELTJES ---------- */
+  if(fx&&stage>=1){const n=[0,3,4,6,9,14][stage];
+    for(let i=0;i<n;i++){const x=cx-75+r()*150,y=140+r()*150,dl=f1(r()*3.4);
+      if(E==="vuur")o+=`<circle class="av-rise" style="animation-delay:${dl}s" cx="${f1(x)}" cy="${f1(y)}" r="${f1(1+r()*2)}" fill="${r()<.5?el.c2:el.c}"/>`;
+      else if(E==="storm")o+=`<path class="av-spark" style="animation-delay:${dl}s" d="M${f1(x)},${f1(y)} l3,-5 l-1,4 l3,-5" stroke="${el.c2}" stroke-width="1.2" fill="none"/>`;
+      else if(E==="schaduw")o+=`<circle class="av-rise slow" style="animation-delay:${dl}s" cx="${f1(x)}" cy="${f1(y)}" r="${f1(2+r()*3)}" fill="${r()<.3?el.c2:el.c}" opacity=".7"/>`;
+      else if(E==="vorst")o+=`<path class="av-rise slow" style="animation-delay:${dl}s" d="M${f1(x)},${f1(y-3)} L${f1(x)},${f1(y+3)} M${f1(x-2.6)},${f1(y-1.5)} L${f1(x+2.6)},${f1(y+1.5)} M${f1(x-2.6)},${f1(y+1.5)} L${f1(x+2.6)},${f1(y-1.5)}" stroke="#fff" stroke-width="1"/>`;
+      else if(E==="alpen")o+=`<path class="av-rise slow" style="animation-delay:${dl}s" d="M${f1(x)},${f1(y-3)} L${f1(x)},${f1(y+3)} M${f1(x-2.6)},${f1(y-1.5)} L${f1(x+2.6)},${f1(y+1.5)} M${f1(x-2.6)},${f1(y+1.5)} L${f1(x+2.6)},${f1(y-1.5)}" stroke="#fff" stroke-width="1"/>`;
+      else o+=`<circle class="av-rise slow" style="animation-delay:${dl}s" cx="${f1(x)}" cy="${f1(y)}" r="${f1(1+r()*1.6)}" fill="${el.c2}" opacity=".8"/>`;}}
+  if(fx&&stage>=4&&E==="storm"){for(let i=0;i<(stage>=5?4:2);i++){const x=cx+(i%2?1:-1)*(60+r()*30),y=110+r()*90;o+=`<path class="av-spark" style="animation-delay:${f1(r()*1.5)}s" d="${bolt(x,y,60,r)}" stroke="${el.c2}" stroke-width="2" fill="none"/>`;}}
+  if(false){for(let i=0;i<5;i++){const x=cx-95+r()*190,y=240+r()*50,s=4+r()*7;o+=`<path class="av-rise slow" style="animation-delay:${f1(r()*4)}s" d="M${f1(x)},${f1(y)} l${f1(s)},${f1(-s*0.6)} l${f1(s*0.7)},${f1(s*0.8)} l${f1(-s*1.2)},${f1(s*0.5)} Z" fill="#2b2533" stroke="${el.c}" stroke-width=".8"/>`;}}
+  // charisma-vonken & bondgenoot-lichtjes
+  if(fx){
+    const sparks=Math.min(Math.floor(g("CHA")/3),14);
+    for(let i=0;i<sparks;i++){const x=24+r()*192,y=40+r()*240,s=2+r()*3;o+=`<path class="av-spark" style="animation-delay:${f1(r()*2.4)}s" d="M${f1(x)} ${f1(y-s)} L${f1(x+s*.3)} ${f1(y-s*.3)} L${f1(x+s)} ${f1(y)} L${f1(x+s*.3)} ${f1(y+s*.3)} L${f1(x)} ${f1(y+s)} L${f1(x-s*.3)} ${f1(y+s*.3)} L${f1(x-s)} ${f1(y)} L${f1(x-s*.3)} ${f1(y-s*.3)} Z" fill="#ffd36a"/>`;}
+    const calm=Math.min(Math.floor(g("RUS")/3),10);
+    if(calm)o+=`<ellipse cx="${cx}" cy="${f1((headCY+ground)/2)}" rx="${80+calm*3}" ry="${f1((ground-headCY)/2+30)}" fill="none" stroke="${el.c2}" stroke-opacity="${(0.03+calm*0.01).toFixed(2)}" stroke-width="${8+calm}" filter="url(#${p}sm)"/>`;
+    for(let i=0;i<calm;i++){const x=30+r()*180,y=70+r()*200;o+=`<circle class="av-bob" style="animation-delay:${f1(r()*3)}s" cx="${f1(x)}" cy="${f1(y)}" r="${f1(1.2+r()*1.4)}" fill="#ffffff" opacity=".7"/>`;}
+    const orbs=Math.min(Math.floor(g("VER")/4),8);
+    for(let i=0;i<orbs;i++){const side=i%2?1:-1,a=(-50+Math.floor(i/2)*33)*Math.PI/180,x=cx+side*Math.cos(a)*108,y=205+Math.sin(a)*90;
+      o+=`<g class="av-bob" style="animation-delay:${(i*0.45).toFixed(2)}s"><circle cx="${f1(x)}" cy="${f1(y)}" r="7" fill="#4dffb8" opacity=".25" filter="url(#${p}gl)"/><circle cx="${f1(x)}" cy="${f1(y)}" r="2.8" fill="#c9ffe9"/></g>`;}
+  }
+  o+=`</g>`;
+  if(sil)o+=`<text x="120" y="200" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-weight="700" font-size="64" fill="${el.c}" opacity=".55">?</text>`;
+  return o+`</svg>`;
+}
+
+/* ===================== RENDER ===================== */
+function hud(){
+  const ri=rankIdx(S.level),R=RANKS[ri],need=needXp(S.level),pct=Math.min(100,S.xp/need*100);
+  const at=TITLES.find(t=>t.id===S.activeTitle);
+  return `<section class="win hud" style="--rank:${R.col}">
+   <div class="rank-badge"><span>${R.r}</span></div>
+   <div class="hud-main">
+    <div class="hud-top"><span class="hud-name">${esc(S.name)}</span><span class="hud-lvl">LV <b>${S.level}</b></span></div>
+    <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${need}" aria-valuenow="${S.xp}"><i style="width:${pct}%"></i></div>
+    <div class="hud-sub"><span>${fmt(S.xp)} / ${fmt(need)} XP · ${fmt(Math.round(S.totalXp*0.8))} m</span><span class="streak">${S.streak>0?"Streak "+S.streak+" · +"+Math.round((streakMult()-1)*100)+"% XP":at?esc(at.n):R.name}</span></div>
+   </div></section>`;
+}
+function timeLeft(){const n=new Date(),m=new Date(n);m.setHours(24,0,0,0);const s=Math.max(0,(m-n)/1000|0);return pad(s/3600|0)+":"+pad((s%3600)/60|0)+":"+pad(s%60);}
+function qMeta(q){const st=STATS.find(s=>s.k===q.s);return `<div class="q-meta"><span class="q-cat">${CATLBL[q.cat]}</span><span class="q-stat">+${st.n}</span>${q.hidden?'<span class="hidden-tag">Verborgen pad</span>':""}<span class="q-xp">${q.xp} XP</span></div>`;}
+function questsView(){
+  const t=S.today;let h=hud();
+  const P=S.penalty;
+  if(P&&P.mode==="hard"&&P.date===S.today.date){
+    if(!P.done){h+=`<section class="win notice stack"><span class="sys-label">Inhaaltocht</span>
+      <p style="margin:0">Je hebt de dagelijkse quest niet voltooid.${P.lost?` Je streak van <b>${P.lost}</b> ${P.lost===1?"dag":"dagen"} is verbroken.`:""}${P.loss?` Je verliest <b>${P.loss} XP</b>.`:""}</p>
+      <div class="q-text" style="color:var(--red)">${esc(P.quest)}</div>
+      <p class="muted small" style="margin:0">Rond deze inhaaltocht vandaag af. Zolang hij openstaat, krijg je geen dagbonus.</p>
+      <button class="btn danger" data-act="pendone">${P.confirm?"Tik nogmaals om te bevestigen":"Inhaaltocht voltooid"}</button></section>`;}
+    else if(!P.ack){h+=`<section class="win stack"><span class="sys-label">Goed bezig</span><p style="margin:0">Ingehaald. Je bent terug op het pad.</p><button class="btn ghost" data-act="ackpen">Sluiten</button></section>`;}
+  }else if(P&&P.mode!=="hard"&&!P.ack){h+=`<section class="win stack"><span class="sys-label">Rustdag</span><p style="margin:0">Je hebt een dag gemist. De strafmodus staat uit, dus je streak van <b>${P.lost}</b> blijft bevroren staan.</p><button class="btn ghost" data-act="ackpen">Verder</button></section>`;}
+  const chosenMode=t.chosen.length===3;
+  h+=`<div class="today-head"><div><span class="sys-label">Dagtocht</span><h2>${chosenMode?"Je quests van vandaag":"Kies 3 van de 7"}</h2></div><div class="timer">Reset over<b id="timer">${timeLeft()}</b></div></div>`;
+  if(!chosenMode){
+    h+=`<p class="muted small" style="margin:0">Vandaag liggen er zeven quests klaar. Kies er drie en rond ze vóór middernacht af.</p><div class="qlist">`;
+    t.offer.forEach((q,i)=>{const sel=t.sel.includes(i);
+      h+=`<button class="q${sel?" sel":""}${q.hidden?" hidden-q":""}" data-cat="${q.cat}" data-act="sel" data-i="${i}" aria-pressed="${sel}">${qMeta(q)}<div class="q-text">${esc(q.text)}</div>${q.h?`<div class="q-hint">${esc(q.h)}</div>`:""}<span class="q-check">${sel?"✓":""}</span></button>`;});
+    h+=`</div><div class="choose-bar"><div class="row"><span>${t.sel.length} / 3 gekozen</span><span>${t.sel.reduce((a,i)=>a+t.offer[i].xp,0)} XP</span></div>
+      <div class="actions"><button class="btn ghost" data-act="reroll" ${t.rerolled?"disabled":""}>${t.rerolled?"Al opnieuw getrokken":"Nieuwe 7 (1×)"}</button><button class="btn" data-act="accept" ${t.sel.length===3?"":"disabled"}>Accepteer</button></div></div>`;
+  }else{
+    if(t.perfect){h+=`<section class="win complete-banner"><span class="sys-label">Goed bezig</span><h2>Dagtocht voltooid</h2><p class="muted small" style="margin:0">Streak: ${S.streak} ${S.streak===1?"dag":"dagen"}. Je routekaart voor een extra route ligt klaar.</p></section>`;}
+    h+=`<div class="qlist">`;
+    t.chosen.forEach(i=>{const q=t.offer[i],d=!!t.done[i];
+      h+=`<article class="q${d?" done":""}${q.hidden?" hidden-q":""}" data-cat="${q.cat}">${qMeta(q)}<div class="q-text">${esc(q.text)}</div>${q.h&&!d?`<div class="q-hint">${esc(q.h)}</div>`:""}`;
+      if(d){h+=`<div class="sys-label" style="color:var(--ok)">✓ Voltooid</div>`;}
+      else if(q.target){const p=t.prog[i]||0,st=q.step||(q.target>=40?[1,10]:[1,5]);
+        h+=`<div class="counter"><div class="counter-row"><span class="count-num">${fmt(p)} <small>/ ${fmt(q.target)}</small></span>
+          <button class="cbtn" data-act="cnt" data-i="${i}" data-v="-${st[0]}" aria-label="min ${st[0]}">−</button>
+          <button class="cbtn" data-act="cnt" data-i="${i}" data-v="${st[0]}">+${st[0]}</button>
+          <button class="cbtn" data-act="cnt" data-i="${i}" data-v="${st[1]}">+${st[1]}</button></div>
+          <div class="bar cbar"><i style="width:${Math.min(100,p/q.target*100)}%"></i></div></div>`;
+        if(p>=q.target)h+=`<button class="btn btn-done" data-act="done" data-i="${i}">Claim ${Math.round(q.xp*streakMult())} XP</button>`;}
+      else{const cf=t.confirm===i;h+=`<button class="btn btn-done${cf?" gold":""}" data-act="done" data-i="${i}">${cf?"Tik nogmaals om te bevestigen":"Markeer als voltooid"}</button>`;}
+      h+=`</article>`;});
+    h+=`</div>`;
+    h+=gatesView();
+    if(!t.perfect){const left=t.chosen.filter(i=>!t.done[i]).length;h+=`<p class="muted small" style="margin:0;text-align:center">Nog ${left} te gaan. Rond alle drie af voor de dagbonus en je streak.</p>`;}
+  }
+  return h;
+}
+function hunterView(){
+  const ri=rankIdx(S.level),R=RANKS[ri],at=TITLES.find(t=>t.id===S.activeTitle);
+  let h=`<section class="win stack" style="--rank:${R.col}"><div class="avatar-wrap">${avatarSVG(S.look,ri,S.stats,{anim:true,label:R.name})}</div>
+   <div class="avatar-caption">${at?`<span class="title-chip">« ${esc(at.n)} »</span>`:""}<h2>${esc(S.name)}</h2><span class="muted small">${R.name} · Level ${S.level}</span></div>
+   <div class="evo" aria-label="Jouw evolutie">${RANKS.map((r,i)=>`<div class="evo-step${i===ri?" on":""}">${avatarSVG(S.look,i,null,{mini:true,sil:i>ri,label:r.name})}<span>${r.r}</span></div>`).join("")}</div>
+   <button class="btn ghost" data-act="editlook">Uiterlijk aanpassen</button></section>`;
+  h+=`<section class="win stack"><div class="free"><span class="sys-label">Status</span><span>Vrije punten <b>${S.free}</b></span></div><div class="stats">`;
+  const mx=Math.max(40,...Object.values(S.stats));
+  STATS.forEach(s=>{const v=S.stats[s.k];h+=`<div class="stat"><span class="stat-name">${s.n}<small>${s.d}</small></span><div class="bar"><i style="width:${v/mx*100}%"></i></div><span class="stat-val">${v}</span><button class="plus" data-act="pt" data-k="${s.k}" ${S.free?"":"disabled"} aria-label="Punt in ${s.n}">+</button></div>`;});
+  h+=`</div><p class="muted small" style="margin:0">Elke voltooide quest geeft +1 in zijn stat. Per level krijg je 3 vrije punten om zelf te verdelen.</p></section>`;
+  h+=`<section class="win stack"><span class="sys-label">Rangen</span><ul class="unlocks">`;
+  RANKS.forEach((r,i)=>{h+=`<li class="${i<=ri?"got":"lock"}" style="${i<=ri?`color:${r.col}`:""}"><span class="r">${r.r}</span><span><b>Level ${r.min}+</b> · ${r.gear}</span></li>`;});
+  h+=`</ul></section>`;
+  h+=`<section class="win stack"><span class="sys-label">Titels</span><div class="titles">`;
+  TITLES.forEach(t=>{const on=S.titles.includes(t.id);h+=`<button class="tchip${on?" on":""}${S.activeTitle===t.id?" active":""}" ${on?`data-act="title" data-t="${t.id}"`:"disabled"} title="${esc(t.d)}">${on?esc(t.n):"???"}</button>`;});
+  h+=`</div><p class="muted small" style="margin:0">Tik op een ontgrendelde titel om hem te dragen.</p></section>`;
+  return h;
+}
+function logView(){
+  let h=hud();
+  h+=`<div class="kpis"><div class="kpi"><b>${S.totalDone}</b><span>Quests</span></div><div class="kpi"><b>${S.best}</b><span>Beste streak</span></div><div class="kpi"><b>${fmt(S.totalXp)}</b><span>Totaal XP</span></div></div>`;
+  // 14 dagen
+  const k=dkey(),map={};S.history.forEach(x=>map[x.d]=x.done);if(S.today)map[S.today.date]=S.today.chosen.filter(i=>S.today.done[i]).length;
+  h+=`<section class="win stack"><span class="sys-label">Laatste 14 dagen</span><div class="days">`;
+  for(let i=13;i>=0;i--){const d=addDays(k,-i),v=map[d]||0;h+=`<div class="day p${v}${i===0?" today":""}" title="${d}: ${v}/3"></div>`;}
+  h+=`</div><div class="legend"><span><i style="background:#060c18;border:1px solid #16304f"></i>0</span><span><i style="background:rgba(61,180,255,.5)"></i>1–2</span><span><i style="background:var(--line)"></i>3/3</span></div></section>`;
+  h+=`<section class="win stack"><span class="sys-label">Per categorie</span><div class="kpis kpis-4">${["beweging","mindfulness","community","interactie"].map(c=>`<div class="kpi" style="border-color:var(--cat-${c})"><b>${S.counts[c]}</b><span>${CATLBL[c]}</span></div>`).join("")}</div></section>`;
+  h+=`<section class="win stack"><span class="sys-label">Recent voltooid</span>`;
+  if(!S.recent.length)h+=`<p class="muted" style="margin:0">Nog niets voltooid. Kies je eerste drie quests op het Quests-scherm.</p>`;
+  else{h+=`<ul class="log">`;S.recent.slice(0,15).forEach(r=>{h+=`<li><span class="dot" style="background:var(--cat-${r.cat})"></span><span>${esc(r.text)}<span class="d">${r.d}</span></span><span class="x">+${r.xp}</span></li>`;});h+=`</ul>`;}
+  h+=`</section>`;
+  const days=[["","Geen"],[1,"Ma"],[2,"Di"],[3,"Wo"],[4,"Do"],[5,"Vr"]];
+  h+=`<section class="win stack"><span class="sys-label">Instellingen</span>
+   <div class="field"><label>Strafmodus</label>
+    <button class="btn ${S.settings.penalty?"danger":"ghost"}" data-act="pmode" aria-pressed="${S.settings.penalty}">${S.settings.penalty?"Aan: gemiste dag = strafquest en XP-verlies":"Uit: gemiste dag bevriest je streak"}</button></div>
+   <div class="field"><label>Kantoordag</label><div class="seg">${days.map(([v,l])=>`<button class="${String(S.settings.office??"")===String(v)?"on":""}" data-act="office" data-v="${v}">${l}</button>`).join("")}</div>
+    <span class="muted small">Op deze dag krijg je altijd een kantoorquest aangeboden.</span></div>
+   <div class="field"><label for="nm">Naam</label><input type="text" id="nm" maxlength="20" value="${esc(S.name)}"></div>
+   <button class="btn ghost" data-act="name">Naam opslaan</button>
+   <div class="field"><label for="bk">Back-upcode</label><textarea id="bk" placeholder="Plak hier een back-upcode om je voortgang terug te zetten"></textarea></div>
+   <div class="actions"><button class="btn ghost" data-act="exp">Kopieer back-up</button><button class="btn ghost" data-act="imp">Herstel</button></div>
+   <p class="muted small" style="margin:0">Op Android: open deze pagina in Chrome, tik op ⋮ en kies <b>App installeren</b> of <b>Toevoegen aan startscherm</b>.</p>
+   <p class="muted small" style="margin:0" id="syncinfo">Je voortgang staat alleen op deze telefoon, niet in de cloud. Maak af en toe een back-up en bewaar de code in je notities.</p>
+   <button class="btn danger" data-act="reset">${resetArm?"Tik nogmaals: alles wissen":"Begin opnieuw"}</button></section>`;
+  return h;
+}
+let resetArm=false;
+let draft=null,pStage=0,firstLook=false;
+const NUMK=["hairCol","skin","eyes","outCol"];
+function createView(){
+  const L=draft,R=RANKS[pStage];
+  const grp=(title,key,items)=>`<div class="field"><label>${title}</label><div class="opts">${items.map(it=>{const on=String(L[key])===String(it.v);
+    return it.label?`<button class="opt${on?" on":""}" data-act="look" data-k="${key}" data-v="${it.v}" aria-pressed="${on}">${it.sw?`<i style="background:${it.sw};color:${it.sw}"></i>`:""}${esc(it.label)}</button>`
+    :`<button class="swatch${on?" on":""}" style="background:${it.sw}" data-act="look" data-k="${key}" data-v="${it.v}" aria-pressed="${on}" aria-label="${title} ${+it.v+1}"></button>`;}).join("")}</div></div>`;
+  let h=`<div><span class="sys-label">${firstLook?"Start":"Uiterlijk"}</span><h2>${firstLook?"Kies je bergloper":"Pas je bergloper aan"}</h2><p class="muted small" style="margin:4px 0 0">Je begint in het dal. Elke rang brengt je hoger en verandert je uitrusting, tot je bij S-rang op de top staat. Tik op een rang om de tocht te bekijken.</p></div>`;
+  h+=`<section class="win stack" style="--rank:${R.col}"><div class="avatar-wrap">${avatarSVG(L,pStage,null,{anim:true,label:R.name})}</div>
+    <p class="evo-label"><b style="color:${R.col}">${R.name}</b><br><span class="muted">${R.gear}</span></p>
+    <div class="evo">${RANKS.map((r,i)=>`<button class="evo-step${i===pStage?" on":""}" data-act="pstage" data-v="${i}" aria-label="Bekijk ${r.name}">${avatarSVG(L,i,null,{mini:true,label:r.name})}<span>${r.r}</span></button>`).join("")}</div></section>`;
+  h+=`<section class="win stack">`;
+  h+=grp("Gebergte","element",LOOK_OPTS.element.map(e=>({v:e.k,label:e.n,sw:e.c})));
+  h+=grp("Haarstijl","hair",LOOK_OPTS.hair.map(x=>({v:x.k,label:x.n})));
+  h+=grp("Haarkleur","hairCol",LOOK_OPTS.hairCol.map((c,i)=>({v:i,sw:c})));
+  h+=grp("Huidskleur","skin",LOOK_OPTS.skin.map((c,i)=>({v:i,sw:c})));
+  h+=grp("Oogkleur","eyes",LOOK_OPTS.eyes.map((c,i)=>({v:i,sw:c})));
+  h+=grp("Bril","bril",LOOK_OPTS.bril.map(x=>({v:x.k,label:x.n})));
+  h+=grp("Outfit","outfit",LOOK_OPTS.outfit.map(x=>({v:x.k,label:x.n})));
+  h+=grp("Outfitkleur","outCol",LOOK_OPTS.outCol.map((c,i)=>({v:i,sw:c})));
+  h+=`<div class="field"><label for="cnm">Naam</label><input type="text" id="cnm" maxlength="20" value="${esc(S.name)}"></div>`;
+  h+=`<div class="actions">${firstLook?"":`<button class="btn ghost" data-act="lookcancel">Annuleer</button>`}<button class="btn" data-act="lookok">${firstLook?"Start de tocht":"Opslaan"}</button></div></section>`;
+  return h;
+}
+function openCreator(first){if(!first)pushBack();firstLook=!!first;draft=Object.assign({},DEFAULT_LOOK,S.look||{});pStage=first?0:rankIdx(S.level);tab="create";render();window.scrollTo(0,0);}
+function render(){
+  const app=$("#app");
+  app.innerHTML=tab==="create"?createView():tab==="quests"?questsView():tab==="hunter"?hunterView():logView();
+  document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===tab));
+  const t=S.today,open=t?(t.chosen.length<3?1:t.chosen.filter(i=>!t.done[i]).length||(t.gate&&t.gate.keys&&!t.gate.active?"!":0)):0;
+  const bq=$("#badge-q");open?bq.setAttribute("data-n",open):bq.removeAttribute("data-n");
+  const bh=$("#badge-h");S.free?bh.setAttribute("data-n",S.free):bh.removeAttribute("data-n");
+}
+
+/* ===================== OVERLAYS ===================== */
+let showing=false;
+function pushBack(){try{history.pushState({hs:1},"");}catch(e){}}
+function flush(){
+  if(showing||!queue.length)return;
+  // Meerdere level-ups samenvoegen
+  let e=queue.shift();
+  while(e.type==="level"&&queue[0]&&queue[0].type==="level")e=queue.shift();
+  showing=true;pushBack();let inner="";
+  if(e.type==="level")inner=`<span class="sys-label">Goed bezig</span><div class="big">LEVEL ${e.level}</div><p style="margin:0">Je bent sterker geworden.<br><b style="color:var(--gold)">+3 vrije statpunten</b></p>`;
+  if(e.type==="rank"){const R=RANKS[e.r];inner=`<span class="sys-label">Nieuwe hoogte</span><div class="big" style="color:${R.col};text-shadow:0 0 18px ${R.col}">${R.r}-RANG</div><p style="margin:0">Je bent een flink stuk hoger geklommen.<br>Nieuw ontgrendeld: <b>${R.gear}</b></p>`;}
+  if(e.type==="daily")inner=`<span class="sys-label">Goed bezig</span><div class="big gold">DAGTOCHT VOLTOOID</div><p style="margin:0">Dagbonus <b style="color:var(--gold)">+${e.bonus} XP</b><br>Streak: ${S.streak} ${S.streak===1?"dag":"dagen"}<br><b style="color:var(--line)">Routekaart ontvangen</b></p>`;
+  if(e.type==="gate"){const g=GATES[e.rar];inner=`<span class="sys-label">Extra route</span><div class="big" style="color:${g.c};text-shadow:0 0 18px ${g.c};font-size:34px">${g.n.toUpperCase()}</div><p style="margin:0">${g.d}</p>`;}
+  if(e.type==="cleared"){const g=GATES[e.rar];inner=`<span class="sys-label">Goed bezig</span><div class="big" style="color:${g.c};text-shadow:0 0 18px ${g.c};font-size:32px">ROUTE VOLTOOID</div><p style="margin:0"><b style="color:var(--gold)">+${e.x} XP</b> · reeks ${e.combo}<br>Je krijgt een nieuwe routekaart.</p>`;}
+  if(e.type==="title")inner=`<span class="sys-label">Titel verdiend</span><div class="big gold" style="font-size:30px">« ${esc(e.t.n)} »</div><p style="margin:0">${esc(e.t.d)}</p>`;
+  $("#layer").innerHTML=`<div class="overlay" data-act="close"><div class="win">${inner}<button class="btn" data-act="close">OK</button></div></div>`;
+}
+let toastT;
+function toast(msg){clearTimeout(toastT);let el=$(".toast");if(!el){el=document.createElement("div");el.className="toast";el.setAttribute("role","status");document.body.appendChild(el);}el.textContent=msg;toastT=setTimeout(()=>el.remove(),2200);}
+
+/* ===================== INTERACTIE ===================== */
+document.addEventListener("click",ev=>{
+  const tb=ev.target.closest(".tab");if(tb){if(firstLook&&!S.look){toast("Kies eerst je bergloper");return;}if(tab==="quests"&&tb.dataset.tab!=="quests")pushBack();tab=tb.dataset.tab;resetArm=false;render();window.scrollTo(0,0);return;}
+  const el=ev.target.closest("[data-act]");if(!el)return;
+  const a=el.dataset.act,t=S.today,i=+el.dataset.i;
+  if(a==="close"){if(ev.target!==el&&el.classList.contains("overlay"))return;if(history.state&&history.state.hs){history.back();return;}$("#layer").innerHTML="";showing=false;flush();return;}
+  if(a==="sel"){const p=t.sel.indexOf(i);if(p>-1)t.sel.splice(p,1);else if(t.sel.length<3)t.sel.push(i);else{toast("Je kunt er maar 3 kiezen");return;}save();render();return;}
+  if(a==="reroll"){if(t.rerolled)return;t.offer=genOffer(t.date,1);t.sel=[];t.rerolled=true;save();render();toast("Zeven nieuwe quests liggen klaar");return;}
+  if(a==="accept"){if(t.sel.length!==3)return;t.chosen=[...t.sel].sort((x,y)=>x-y);save();render();window.scrollTo(0,0);toast("Etappes gekozen. Goede tocht!");return;}
+  if(a==="cnt"){const q=t.offer[i];t.prog[i]=Math.max(0,Math.min(q.target,(t.prog[i]||0)+(+el.dataset.v)));save();render();return;}
+  if(a==="done"){const q=t.offer[i];if(!q.target&&t.confirm!==i){t.confirm=i;render();return;}t.confirm=null;complete(i);return;}
+  if(a==="pt"){if(!S.free)return;S.free--;S.stats[el.dataset.k]++;save();render();return;}
+  if(a==="title"){S.activeTitle=el.dataset.t;save();render();return;}
+  if(a==="gopen"){openGate(i);return;}
+  if(a==="gcnt"){const q=gateState().active;if(!q)return;q.prog=Math.max(0,Math.min(q.target,q.prog+(+el.dataset.v)));save();render();return;}
+  if(a==="gdone"){const q=gateState().active;if(!q)return;if(!q.target&&!q.confirm){q.confirm=true;render();return;}clearGate();return;}
+  if(a==="gquit"){abandonGate();return;}
+  if(a==="look"){const k=el.dataset.k;draft[k]=NUMK.includes(k)?+el.dataset.v:el.dataset.v;render();return;}
+  if(a==="pstage"){pStage=+el.dataset.v;render();return;}
+  if(a==="editlook"){openCreator(false);return;}
+  if(a==="lookcancel"){tab="hunter";render();return;}
+  if(a==="lookok"){const v=($("#cnm").value||"").trim().slice(0,20);if(v)S.name=v;S.look=Object.assign({},draft);const f=firstLook;firstLook=false;save();tab=f?"quests":"hunter";render();window.scrollTo(0,0);toast(f?"Welkom op het pad, "+S.name:"Uiterlijk opgeslagen");return;}
+  if(a==="ackpen"){S.penalty.ack=true;save();render();return;}
+  if(a==="pendone"){const P=S.penalty;if(!P.confirm){P.confirm=true;render();return;}P.done=true;P.confirm=false;toast("Ingehaald");checkPerfect();checkTitles();save();render();flush();return;}
+  if(a==="pmode"){S.settings.penalty=!S.settings.penalty;if(!S.settings.penalty&&S.penalty&&S.penalty.mode==="hard"&&!S.penalty.done){S.penalty.done=true;S.penalty.ack=true;checkPerfect();}save();render();toast(S.settings.penalty?"Strafmodus aan":"Strafmodus uit: je streak bevriest bij een gemiste dag");flush();return;}
+  if(a==="office"){const v=el.dataset.v;S.settings.office=v===""?null:+v;if(t&&!t.chosen.length){t.offer=genOffer(t.date,t.rerolled?1:0);t.sel=[];}save();render();toast("Kantoordag opgeslagen");return;}
+  if(a==="name"){const v=$("#nm").value.trim().slice(0,20);if(v){S.name=v;save();render();toast("Naam opgeslagen");}return;}
+  if(a==="exp"){const code=btoa(unescape(encodeURIComponent(JSON.stringify(S))));const ta=$("#bk");ta.value=code;
+    const done=()=>toast("Back-upcode gekopieerd");
+    try{navigator.clipboard.writeText(code).then(done,()=>{ta.select();toast("Selecteer en kopieer de code hierboven");});}catch(e){ta.select();toast("Selecteer en kopieer de code hierboven");}return;}
+  if(a==="imp"){try{const o=JSON.parse(decodeURIComponent(escape(atob($("#bk").value.trim()))));if(!o||!o.stats||!o.level)throw 0;adopt(o);ensureDay();save();render();toast("Voortgang hersteld");}catch(e){toast("Deze code klopt niet. Plak de volledige back-upcode.");}return;}
+  if(a==="reset"){if(!resetArm){resetArm=true;render();return;}resetArm=false;S=fresh();ensureDay();save();tab="quests";render();toast("Nieuw begin");return;}
+});
+
+/* ===================== LOKALE OPSLAG ===================== */
+// Alles blijft op dit toestel. Vraag het systeem de opslag niet op te ruimen.
+async function initCloud(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist();}catch(e){}}
+
+/* ===================== START ===================== */
+function upgrade(){if(S.today&&S.today.perfect&&!S.today.gate)gateState().keys=1;if(S.poolV!==2){S.poolV=2;if(S.today&&!S.today.chosen.length){S.today.offer=genOffer(S.today.date,S.today.rerolled?1:0);S.today.sel=[];}}}
+function adopt(o){S=migrate(Object.assign(fresh(),{poolV:1},o));upgrade();}
+upgrade();ensureDay();save();render();if(!S.look)openCreator(true);
+window.addEventListener("popstate",()=>{
+  if(showing){$("#layer").innerHTML="";showing=false;flush();return;}
+  if(tab==="create"&&!firstLook){tab="hunter";render();return;}
+  if(tab!=="quests"&&tab!=="create"){tab="quests";resetArm=false;render();window.scrollTo(0,0);}
+});
+setInterval(()=>{const tm=$("#timer");if(tm)tm.textContent=timeLeft();if(ensureDay()){render();return;}const G=S.today&&S.today.gate,q=G&&G.active;if(q&&q.deadline){if(Date.now()>q.deadline)abandonGate("tijd");else{const gt=$("#gtimer");if(gt)gt.textContent=gateTimeLeft(q);}}},1000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&ensureDay())render();});
+initCloud();
+if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost"))navigator.serviceWorker.register("sw.js").catch(()=>{});
+})();
+</script>
+
+</body>
+</html>
